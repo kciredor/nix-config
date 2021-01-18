@@ -14,5 +14,6 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/kciredor/nixos-config/ma
 # Next steps
 - Networkmanager wifi profiles.
 - Dropbox login link via `dropbox status`.
+- Goobook login with `goobook authenticate`.
 - Firefox installed extensions need to be enabled and sync turned on.
 - Etc.

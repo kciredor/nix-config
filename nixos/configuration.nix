@@ -3,14 +3,12 @@
 ###################################
 
 # TODO
-# - Hardware
-#   - Audio: docked speakers require 'pavucontrol -> output -> toggle mute off / on' and having fallback enabled. Or is TLP autosuspend USB be in the way?
-#   - Bluetooth headsets (see Pipewire config again).
-# - Neomutt including mbsync.
+# - Bluetooth headsets (see Pipewire config again).
 # - Backups with Borg (using Vorta or Borgmatic)
+# - Virtualisation.
 #
-# - Next
-#   - Split up configuration.nix: starbook.nix, x.nix, home.nix, (custom)packages.nix, ...
+# Next steps
+#   - Split up configuration.nix: starbook.nix, x.nix, home.nix, (custom)packages.nix, perhaps secrets.nix (see: https://github.com/balsoft/nixos-config).
 #   - Custom packages: https://nixos.org/manual/nixos/stable/index.html#sec-custom-packages #2: include from repo into c.nix.
 #     - Binary Ninja: ready, just needs the include.
 #     - IDA Pro
@@ -309,18 +307,22 @@ in {
         nerdfonts  # Includes powerline and fontawesome. Required by Starship, i3status-rust, vim-lualine and vim-bufferline.
 
         exa
+        binutils-unwrapped  # Required by gdb-gef.
         unzip
+        urlscan  # Required by neomutt.
         kubectl
         kubectx
         google-cloud-sdk
         awscli
         azure-cli
-        python39
         rustc
         rustfmt
         cargo
-        binutils-unwrapped  # Required by gdb-gef.
+        (python39.withPackages(ps: with ps; [
+          goobook
+        ]))
 
+        libnotify
         xsel  # Required by tmux-yank.
         scrot
         feh
@@ -669,6 +671,151 @@ in {
             luasnip
             friendly-snippets
           ];
+      };
+
+      accounts.email = {
+        maildirBasePath = ".maildir";
+
+        accounts = {
+          gmail = {
+            primary = true;
+            flavor = "gmail.com";
+            realName = "Roderick Schaefer";
+            address = "roderick@wehandle.it";
+            userName = "roderick@wehandle.it";
+            passwordCommand = "/home/kciredor/ops/nixos/config/nixos/secrets/kciredor/gmail.sh";
+            signature = {
+              showSignature = "append";
+              text = ''
+
+
+                Met vriendelijke groet,
+                Roderick Schaefer
+
+              '';
+            };
+            gpg = {
+              encryptByDefault = false;
+              signByDefault = true;
+              key = "0x9ECCEBE3D5B38DA6";
+            };
+            imap = {
+              host = "imap.gmail.com";
+              tls.enable = true;
+            };
+            smtp = {
+              host = "smtp.gmail.com";
+              tls.enable = true;
+            };
+            msmtp = {
+              enable = true;
+            };
+            mbsync = {
+              enable = true;
+
+              subFolders  = "Verbatim";
+
+              extraConfig = {
+                account = {
+                  PipelineDepth = 50;
+                };
+              };
+
+              groups.gmail = {
+                channels = {
+                  default = {
+                    patterns = [ "*" "![Gmail]*" "!Archive" "!Sent" "!Flagged" "!Drafts" "!Spam" "!Trash" ];
+                  };
+                  archive = {
+                    farPattern = "[Gmail]/All Mail";
+                    nearPattern = "Archive";
+                  };
+                  sent = {
+                    farPattern = "[Gmail]/Sent Mail";
+                    nearPattern = "Sent";
+                  };
+                  flagged = {
+                    farPattern = "[Gmail]/Starred";
+                    nearPattern = "Flagged";
+                  };
+                  drafts = {
+                    farPattern = "[Gmail]/Drafts";
+                    nearPattern = "Drafts";
+                  };
+                  spam = {
+                    farPattern = "[Gmail]/Spam";
+                    nearPattern = "Spam";
+                  };
+                  trash = {
+                    farPattern = "[Gmail]/Trash";
+                    nearPattern = "Trash";
+                  };
+                };
+              };
+            };
+            notmuch = {
+              enable = true;
+            };
+            imapnotify = {
+              enable = true;
+              boxes = [ "Inbox" ];
+              extraConfig = {
+                wait = 10;
+              };
+              onNotify = "${pkgs.notmuch}/bin/notmuch new";
+              onNotifyPost = "${pkgs.libnotify}/bin/notify-send 'Mail synced'";
+            };
+            neomutt = {
+              enable = true;
+              extraMailboxes = [ "Archive" "Sent" "Flagged" "Drafts" "Spam" "Trash" "Kindle" "Later" ];
+            };
+          };
+        };
+      };
+
+      programs.neomutt = {
+        enable = true;
+        sidebar.enable = true;
+        vimKeys = true;
+        checkStatsInterval = 5;
+        sort = "reverse-threads";
+        binds = [
+          { action = "sidebar-next"; key = "<down>";  map = [ "index" "pager" ]; }
+          { action = "sidebar-prev"; key = "<up>";    map = [ "index" "pager" ]; }
+          { action = "sidebar-open"; key = "<right>"; map = [ "index" "pager" ]; }
+        ];
+        macros = [
+          { action = "<toggle-new>";                     key = "n"; map = [ "index" "pager" ]; }
+          { action = "<save-entry><bol>~/down/<eol>";    key = "s"; map = [ "attach" ]; }
+          { action = "<shell-escape>notmuch new<enter>"; key = "o"; map = [ "index" ]; }
+          { action = "<vfolder-from-query>";             key = "\\\\"; map = [ "index" ]; }
+          { action = "<pipe-entry>urlscan<enter>";       key = "U"; map = [ "pager" ]; }
+          { action = "<pipe-entry>cat > ~/.cache/neomutt/preview.html && xdg-open ~/.cache/neomutt/preview.html<enter>"; key = "H"; map = [ "attach" ]; }
+        ];
+        extraConfig = builtins.concatStringsSep "\n" [
+          (lib.strings.fileContents ../../home/kciredor/ops/nixos/config/dotfiles/kciredor/neomutt/init.muttrc)
+          (lib.strings.fileContents ../../home/kciredor/ops/nixos/config/dotfiles/kciredor/neomutt/gmail.muttrc)
+          (lib.strings.fileContents ../../home/kciredor/ops/nixos/config/dotfiles/kciredor/neomutt/monokai.muttrc)
+        ];
+      };
+
+      programs.msmtp.enable = true;
+
+      programs.mbsync = {
+        enable = true;
+        extraConfig = ''
+          Create Both
+          Expunge Both
+          SyncState *
+        '';
+      };
+
+      services.imapnotify.enable = true;
+
+      programs.notmuch = {
+        enable = true;
+        new.tags = [];
+        hooks.preNew = "mbsync gmail";
       };
 
       programs.go = {
