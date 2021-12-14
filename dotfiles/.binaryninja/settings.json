@@ -1,0 +1,20 @@
+{
+	"analysis.database.suppressReanalysis" : true,
+	"python.binaryOverride" : "/usr/bin/python"
+	"rendering.hlil.scopingStyle" : "braces",
+	"ui.theme" : "Solarized Dark",
+	"ui.view.graph.preferred" : true,
+	"ui.view.reflection.ilMap" : 
+	[
+		"LowLevelILSSAForm",
+		"LowLevelILSSAForm",
+		"MediumLevelIL",
+		"MediumLevelILSSAForm",
+		"LowLevelIL",
+		"HighLevelIL",
+		"Disassembly"
+	],
+	"ui.view.reflection.ilSync" : false,
+	"user.email" : "roderick@wehandle.it",
+	"user.name" : "kciredor"
+}
