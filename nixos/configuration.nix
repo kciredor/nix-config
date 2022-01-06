@@ -3,20 +3,20 @@
 ###################################
 
 # TODO
-# - More shell aliases.
-# - X
-#   - i3 basics: switch/close windows.
-#   - autolock
-# - Apps
-#   - Firefox with settings and extensions.
-#   - Neovim.
+# - Hardware
+#   - Audio: docked speakers require 'pavucontrol -> output -> toggle mute off / on' and having fallback enabled. Or is TLP autosuspend USB be in the way?
+#   - Bluetooth headsets (see Pipewire config again).
+# - Neomutt including mbsync.
+# - Backups with Borg (using Vorta or Borgmatic)
+#
+# - Next
+#   - Split up configuration.nix: starbook.nix, x.nix, home.nix, (custom)packages.nix, ...
 #   - Custom packages: https://nixos.org/manual/nixos/stable/index.html#sec-custom-packages #2: include from repo into c.nix.
-#     - Coreboot configurator: https://github.com/StarLabsLtd/coreboot-configurator
 #     - Binary Ninja: ready, just needs the include.
 #     - IDA Pro
-#   - Default apps: xdg-mime-apps module in home-manager -> should fix tmux urlview.
-#   - Neomutt.
-# - Backups: Borg (via Vorta or Borgmatic)
+#   - 'gef missing'.
+#   - Try Polybar instead of i3status(-rust).
+#   - Try Wayland with Sway instead of Xorg with i3.
 
 { config, pkgs, lib, ... }:
 
@@ -30,41 +30,81 @@ in {
   imports = [
     ./hardware-configuration.nix
 
+    # StarBook related.
+    <nixos-hardware/common/cpu/intel>  # Includes i915.
+    <nixos-hardware/common/pc/laptop>  # Enables tlp.
+    <nixos-hardware/common/pc/laptop/ssd>  # Enables weekly trimming.
+
     <home-manager/nixos>
   ];
 
-  # Running inside VMware needs these to be enabled.
-  virtualisation.vmware.guest.enable = true;
-  services.openssh.enable = true;
+  # Firmware, StarBook related.
+  # FIXME: Older fwupd does not detect Coreboot firmware, see https://github.com/NixOS/nixpkgs/issues/153238.
+  services.fwupd.enable = true;
 
   # Bootloader.
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.grub = {
-    enable = true;
-    version = 2;
-    device = "nodev";
-    efiSupport = true;
-    enableCryptodisk = true;
+  boot.loader = {
+    efi.canTouchEfiVariables = true;
+    systemd-boot.enable = true;
   };
   boot.initrd.luks.devices = {
       storage = {
         device = "/dev/nvme0n1p2";
         preLVM = true;
-        # TODO: trim support? "lsblk --discard And check the values of DISC-GRAN (discard granularity) and DISC-MAX (discard max bytes) columns. Non-zero values indicate TRIM support."
-        #                     "Alternatively, install hdparm package and run: hdparm -I /dev/sda | grep TRIM"
-        # allowDiscards = true;
-        # + fileSystems."/".options = [ "noatime" "nodiratime" "discard" ];
+        allowDiscards = true;  # StarBook actually recommends disabling discard/trim.
       };
   };
 
+  # Kernel.
+  # XXX: Required by DisplayLink to be disabled for now because of bug in their most recent driver package on latest kernels.
+  # boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  # Power management.
+  services.upower.enable = true;  # StarBook related, included by XFCE as well.
+  services.logind.lidSwitch = "suspend-then-hibernate";
+
+  # Bluetooth.
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
+
+  # Virtualisation.
+  virtualisation.docker.enable = true;
+
   # Networking.
-  networking.hostName = "rs-sb";
-  networking.usePredictableInterfaceNames = false;
-  networking.useDHCP = false;
-  networking.interfaces.eth0.useDHCP = true; 
-  networking.networkmanager.enable = true;  # NOTE: nmcli device wifi rescan ; nmcli device wifi connect <ssid> --ask -> nm-applet.
-  # networking.firewall.allowedTCPPorts = lib.mkForce [];  # Force close all ports. Runnig inside VMware needs this to be disabled.
-  # networking.firewall.allowedUDPPorts = lib.mkForce [];  # " "
+  networking = {
+    hostName = "rs-sb";
+    usePredictableInterfaceNames = false;
+
+    # Using dnsmasq ensures wireguard up and down does not clear resolv.conf.
+    networkmanager = {
+      enable = true;
+      dns = "dnsmasq";
+    };
+
+    firewall = {
+      # Force close all ports.
+      allowedTCPPorts = lib.mkForce [];
+      allowedUDPPorts = lib.mkForce [];
+
+      # Allow wireguard traffic through rpfilter.
+      extraCommands = ''
+        ip46tables -t raw -I nixos-fw-rpfilter -p udp -m udp --sport 51820 -j RETURN
+        ip46tables -t raw -I nixos-fw-rpfilter -p udp -m udp --dport 51820 -j RETURN
+      '';
+      extraStopCommands = ''
+        ip46tables -t raw -D nixos-fw-rpfilter -p udp -m udp --sport 51820 -j RETURN || true
+        ip46tables -t raw -D nixos-fw-rpfilter -p udp -m udp --dport 51820 -j RETURN || true
+      '';
+    };
+  };
+
+  # VPN.
+  environment.etc = {
+    "NetworkManager/system-connections/vpn.nmconnection" = {
+      source = "/etc/nixos/secrets/kciredor/vpn.nmconnection";
+      mode = "0600";
+    };
+  };
 
   # Timezone, locale and keyboard map.
   time.timeZone = "Europe/Amsterdam";
@@ -98,18 +138,41 @@ in {
     };
 
     systemPackages = with pkgs; [
+      myFlashrom
+
       vim
       curl
       htop
       ripgrep
       gdb
 
-      networkmanagerapplet
+      pulseaudio  # Required by volume buttons bound in i3.
+      pavucontrol  # Required by i3status icon.
+      arandr
     ];
   };
 
   # Custom packages.
   nixpkgs.overlays = [(self: super: {
+    # XXX: Latest flashrom release v1.2 is 2 years old and does not detect chipset, see https://github.com/StarLabsLtd/firmware/issues/24#issuecomment-1007455366.
+    myFlashrom = super.flashrom.overrideAttrs (old: {
+      version = "1.2-custom";
+      src = builtins.fetchGit {
+        url = "https://github.com/flashrom/flashrom.git";
+        ref = "b5dc7418e22c15b83e412419099a6d311c5f9f66";
+      };
+      patches = [];
+      postPatch = ''
+        echo "#!/bin/sh" > util/getrevision.sh
+        echo "echo 1.2-custom" >> util/getrevision.sh
+        chmod 755 util/getrevision.sh
+        patchShebangs util/getrevision.sh
+      '';
+      postInstall = ''
+        install -Dm644 util/flashrom_udev.rules $out/lib/udev/rules.d/flashrom.rules
+      '';
+    });
+
     myGhidra = super.ghidra-bin.overrideAttrs (old: {
       version = "10.1";
       src = super.fetchzip {
@@ -136,17 +199,28 @@ in {
     wantedBy = [ "network-online.target" ];
   };
 
-  # Virtualisation.
-  virtualisation.docker.enable = true;
-
   # X11.
   services.xserver = {
     enable = true;
 
-    layout = "dvorak";
-    xkbOptions = "eurosign:e";  # caps:swapescape
-    # TODO: autoRepeatDelay / autoRepeatInterval.
+    # StarBook related, recommended Intel Iris settings by NixOS. Needs picom as well to prevent tearing (configured by home-manager). Also adds DisplayLink support.
+    # FIXME: nixos-install does not find displaylink.zip.
+    videoDrivers = [ "displaylink" "modesetting" ];
+    useGlamor = true;
 
+    layout = "dvorak";
+    xkbOptions = "eurosign:e, caps:swapescape";
+
+    # Does not seem to work, neither does setting AutoRepeat option on keyboard catchall.
+    autoRepeatDelay = 170;
+    autoRepeatInterval = 70;
+
+    libinput = {
+      enable = true;  # Enabled by default by most desktopmanagers.
+      touchpad.naturalScrolling = true;
+    };
+
+    # XFCE can be used together with i3.
     desktopManager = {
       xterm.enable = false;
       xfce = {
@@ -160,38 +234,64 @@ in {
     windowManager.i3 = {
       enable = true;
       package = pkgs.i3-gaps;
-      extraPackages = with pkgs; [
-        i3lock-color
-      ];
     };
 
-    displayManager.defaultSession = "xfce+i3";
+    displayManager.defaultSession = "none+i3";
+
+    displayManager.sessionCommands = ''
+      # Allows for a second external monitor.
+      ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
+
+      # XFCE should not run ssh-agent on top of gpg-agent.
+      xfconf-query -c xfce4-session -p /startup/ssh-agent/enabled -n -t bool -s false
+
+      # XFCE does not honor settings.xserver.[autoRepeatDelay|autoRepeatInterval].
+      xfconf-query -c keyboards -p /Default/KeyRepeat/Delay -s 170
+      xfconf-query -c keyboards -p /Default/KeyRepeat/Rate -s 70
+
+      # i3 does not honor settings.xserver.[autoRepeatDelay|autoRepeatInterval].
+      xset r rate 170 70
+    '';
   };
 
-  systemd.user.services.nm-applet.enable = true;
+  # Brightness buttons.
+  services.illum.enable = true;
 
-  # Misc services.
+  # File indexing.
   services.locate = {
     enable = true;
+    locate = pkgs.mlocate;
+    localuser = null;
     interval = "hourly";
   };
 
-  # TODO: printer
-  # services.printing.enable = true;
+  # Udev rules.
+  services.udev.packages = [
+    pkgs.myFlashrom
+    pkgs.yubikey-personalization
+  ];
 
-  # TODO: sound (pipewire-pulse?)
-  # sound.enable = true;
-  # hardware.pulseaudio.enable = true;
+  # Yubikey.
+  services.pcscd.enable = true;
+  programs.ssh.startAgent = false;
 
-  # TODO: touchpad
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
+  # Sound.
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
 
-  # TODO: gpg/ssh agent -> via home-manager?
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
+  # Printer.
+  services.printing = {
+    enable = true;
+    drivers = with pkgs; [
+      hplip  # Connection lpd://ip/queue.
+    ];
+    webInterface = true;
+  };
 
   #############################################################################
 
@@ -204,12 +304,12 @@ in {
     users.kciredor = {
       uid = 1000;
       isNormalUser = true;
-      extraGroups = [ "wheel" "audio" "video" "networkmanager" "docker" ];
+      extraGroups = [ "wheel" "networkmanager" "docker" "flashrom" ];
       shell = pkgs.zsh;
 
       # Workaround for passwordFile during both initial install and rebuilds while having /etc/nixos symlinked.
       # See: https://github.com/NixOS/nixpkgs/issues/148044.
-      hashedPassword = lib.strings.fileContents ./secrets/kciredor-password.txt;
+      hashedPassword = lib.strings.fileContents ./secrets/kciredor/passwd_hash;
     };
   };
 
@@ -225,18 +325,6 @@ in {
     }
   ];
 
-  # NOTE: These are NOT being run by the initial 'nixos-install', only by 'nixos-rebuild switch' (or boot + an actual reboot).
-  system.userActivationScripts = {
-    # Symlinks some of kciredor's versioned dotfiles which are not currently provisioned by NixOS or Home-Manager.
-    symlinks.text = ''
-      if [[ $USER == "kciredor" ]]; then
-        source ${config.system.build.setEnvironment}
-
-        $HOME/ops/nixos/config/nixos/scripts/kciredor-symlinks.sh
-      fi
-    '';
-  };
-
   # User packages and dotfiles.
   home-manager = {
     useUserPackages = true;
@@ -244,19 +332,85 @@ in {
 
     users.kciredor = { config, pkgs, lib, ... }: {
       home.packages = with pkgs; [
-        (nerdfonts.override { fonts = [ "FiraCode" ]; })  # Required by Starship.
-        powerline-fonts  # Required by Starship.
+        nerdfonts  # Includes powerline and fontawesome. Required by Starship, i3status-rust, vim-lualine and vim-bufferline.
+
         exa
+        unzip
         kubectl
+        kubectx
+        google-cloud-sdk
+        awscli
+        azure-cli
+        python39
+        rustc
+        rustfmt
+        cargo
+        binutils-unwrapped  # Required by gdb-gef.
 
-        xsel  # Required by tmux plugin yank.
-
+        xsel  # Required by tmux-yank.
+        scrot
+        feh
+        i3lock-color
+        yubioath-desktop
         standardnotes
-
-        unstable.todoist-electron
+        todoist-electron
+        rambox
+        spotify
 
         myGhidra
       ];
+
+      # User scripts are activated by `nixos-rebuild boot` upon reboot covering nixos-install and during `nixos-rebuild switch`.
+      home.activation = {
+        userscripts = lib.hm.dag.entryAfter ["writeBoundary"] ''
+          $DRY_RUN_CMD $HOME/ops/nixos/config/nixos/scripts/kciredor/yubikey.sh $VERBOSE_ARG
+          $DRY_RUN_CMD $HOME/ops/nixos/config/nixos/scripts/kciredor/symlinks.sh $VERBOSE_ARG
+        '';
+      };
+
+      # Systemd unit maintenance (sd-switch is the future default).
+      systemd.user.startServices = "sd-switch";
+
+      # Required by DisplayLink.
+      programs.autorandr = {
+        enable = true;
+
+        profiles = {
+          "laptop" = {
+            fingerprint = {
+              eDP-1 = "00ffffffffffff000daef21400000000161c0104a51f117802ee95a3544c99260f505400000001010101010101010101010101010101363680a0703820402e1e240035ad10000018000000fe004e3134304843472d4751320a20000000fe00434d4e0a202020202020202020000000fe004e3134304843472d4751320a2000bb";
+            };
+            config = {
+              eDP-1 = {
+                enable = true;
+                primary = true;
+                mode = "1920x1080";
+              };
+            };
+          };
+          "home" = {
+            fingerprint = {
+              eDP-1 = "00ffffffffffff000daef21400000000161c0104a51f117802ee95a3544c99260f505400000001010101010101010101010101010101363680a0703820402e1e240035ad10000018000000fe004e3134304843472d4751320a20000000fe00434d4e0a202020202020202020000000fe004e3134304843472d4751320a2000bb";
+              DVI-I-1-1 = "00ffffffffffff0010acaaa04c3941301519010380502178eafd25a2584f9f260d5054a54b00714f81008180a940d1c0010101010101e77c70a0d0a029505020ca041e4f3100001a000000ff0036384d434635354a3041394c0a000000fc0044454c4c205533343135570a20000000fd0030551e5920000a20202020202001e5020320f14d9005040302071601141f12135a2309070765030c002000830100009d6770a0d0a0225050205a041e4f3100001a9f3d70a0d0a0155050208a001e4f3100001a584d00b8a1381440942cb5001e4f3100001e7a3eb85060a02950282068001e4f3100001a565e00a0a0a02950302035001e4f3100001a000000000048";
+              DVI-I-2-2 = "00ffffffffffff0010acbaa0534657300f1b010380342078ea0495a9554d9d26105054a54b00714f8180a940d1c0d100010101010101283c80a070b023403020360006442100001e000000ff00374d543031373444305746530a000000fc0044454c4c2055323431350a2020000000fd00313d1e5311000a2020202020200188020322f14f9005040302071601141f12132021222309070765030c00100083010000023a801871382d40582c450006442100001e011d8018711c1620582c250006442100009e011d007251d01e206e28550006442100001e8c0ad08a20e02d10103e960006442100001800000000000000000000000000000000000000000082";
+            };
+            config = {
+              eDP-1.enable = false;
+              DVI-I-1-1 = {
+                enable = true;
+                primary = true;
+                position = "1920x0";
+                mode = "3440x1440";
+              };
+              DVI-I-2-2 = {
+                enable = true;
+                position = "0x120";
+                mode = "1920x1200";
+              };
+            };
+          };
+        };
+      };
 
       programs.zsh = {
         enable = true;
@@ -267,6 +421,7 @@ in {
         enableAutosuggestions = true;
         enableVteIntegration = true;
         enableCompletion = true;
+        enableSyntaxHighlighting = true;
 
         history = {
           size = 100000;
@@ -284,36 +439,62 @@ in {
         '';
 
         shellAliases = {
-          # TODO: ... aliases (3 t/m 5)
-          # TODO: git aliases: glgg, gss, gc, gp
-
-          ls = "exa";
-          l  = "exa -lg";
-          la = "exa -alg";
-          lr = "exa -lRg";
-          lt = "exa --tree";
-          lg = "exa -g --long --git";
-
           vinix = "vim ~/ops/nixos/config/nixos/configuration.nix";
           rebuild = "sudo nix-channel --update && sudo nixos-rebuild switch";
+
+          ls = "exa -g";
+          l  = "ls -l";
+          la = "ls -alg";
+          lr = "ls -lRg";
+          lt = "ls --tree";
+          lg = "ls -g --long --git";
+
+          ".." = "cd ../";
+          "..." = "cd ../../";
+          "...." = "cd ../../../";
+          "....." = "cd ../../../../";
+
+          gss = "git status -s";
+          gco = "git checkout";
+          gp = "git push";
+          gc = "git commit -v";
+          glgg = "git log --graph";
+
+          clip = "xsel -b";
         };
       };
 
       home.file.".gdbinit".text = ''
         set auto-load safe-path /nix/store
 
-        layout regs
+        source ~/ops/nixos/config/nixos/includes/kciredor/gef.py
       '';
 
       programs.starship = {
         enable = true;
         enableZshIntegration = true;
+
         settings = {
-          # format = lib.concatStrings [
-          #   "$directory"
-          #   "$line_break"
-          # ];
-          # right_format = "$kubernetes"
+          directory = {
+            truncation_length = 0;
+            truncate_to_repo = false;
+          };
+
+          format = "$directory$character";
+
+          right_format = lib.concatStrings [
+            "$all"
+          ];
+
+          git_branch.format = "[$symbol$branch]($style) ";
+
+          kubernetes = {
+            disabled = false;
+            format = "[$symbol$context( \($namespace\))]($style) ";
+          };
+
+          aws.disabled = true;
+          gcloud.disabled = true;
         };
       };
 
@@ -362,11 +543,85 @@ in {
         enableZshIntegration = true;
       };
 
+      programs.gpg = {
+        enable = true;
+
+        # Defaults are based on drduh's hardened config, only adding what was missing.
+        settings = {
+          throw-keyids = "";
+        };
+
+        # Play nice between agent and totp.
+        scdaemonSettings = {
+          disable-ccid = true;
+        };
+
+        mutableKeys = false;
+        mutableTrust = false;
+        publicKeys = [
+          {
+            source = ./includes/kciredor/gpg_pubkey;
+            trust = 5;
+          }
+        ];
+      };
+
+      services.gpg-agent = {
+        enable = true;
+
+        enableSshSupport = true;
+        pinentryFlavor = "gtk2";  # Curses tends to open in the wrong terminal.
+      };
+
+      programs.ssh = {
+        enable = true;
+        forwardAgent = false;
+        serverAliveInterval = 120;
+
+        includes = [
+          "${config.home.homeDirectory}/ops/nixos/config/nixos/secrets/kciredor/ssh_hosts"
+        ];
+      };
+
       programs.git = {
         enable = true;
-        userName = "kciredor";
+
+        userName = "Roderick Schaefer";
         userEmail = "roderick@wehandle.it";
-        # TODO: gpg, rebase > merge, cleanup, etc.
+
+        signing = {
+          signByDefault = true;
+          key = "0x31FDA5E3FE0CB640";
+        };
+
+        ignores = [ "*~" ];
+
+        aliases = {
+          cleanup = "!git branch --merged | grep  -v '\\*\\|master\\|develop' | xargs -n 1 git branch -d";
+        };
+
+        includes = [
+          {
+            contents = {
+              branch = {
+                autosetuprebase = "always";
+              };
+
+              push = {
+                default = "tracking";
+              };
+
+              merge = {
+                tool = "vimdiff";
+              };
+
+              mergetool = {
+                keepBackup = false;
+                prompt = false;
+              };
+            };
+          }
+        ];
       };
 
       programs.neovim = {
@@ -377,31 +632,86 @@ in {
         vimAlias = true;
         vimdiffAlias = true;
 
-        # Example with includes: https://breuer.dev/blog/nixos-home-manager-neovim, 
-        # with extraConfig = builtins.readFile ./init.vim https://github.com/SenchoPens/senixos/blob/master/modules/applications/nvim/default.nix
-        extraConfig = ''
-            set sw=4 ts=4
-            set expandtab
-        '';
+        # Added ../../ prefix to paths for initial nixos-install compatibility.
+        extraConfig = builtins.concatStringsSep "\n" [
+          (lib.strings.fileContents ../../home/kciredor/ops/nixos/config/dotfiles/kciredor/neovim/base.vim)
+          (lib.strings.fileContents ../../home/kciredor/ops/nixos/config/dotfiles/kciredor/neovim/plugins.vim)
 
-        # plugins = with pkgs.vimPlugins; [
-        #   yankring
-        # ];
+          ''
+            lua << EOF
+            ${lib.strings.fileContents ../../home/kciredor/ops/nixos/config/dotfiles/kciredor/neovim/plugins.lua}
+            ${lib.strings.fileContents ../../home/kciredor/ops/nixos/config/dotfiles/kciredor/neovim/lsp.lua}
+            EOF
+          ''
+        ];
 
-        # python3, nodejs, etc
+        extraPackages = with pkgs; [
+          tree-sitter
+          ctags  # Required by tagbar.
 
-        # TODO
-        # - automated PlugInstall
-        # - full nvimrc dotfile -or- plugins via config and 'extraConfig' include file.
-        #
-        # https://discourse.nixos.org/t/proper-way-to-install-neovim-plugins-without-home-manager/11837
-        # https://framagit.org/vegaelle/nix-nvim
-        # https://rycee.gitlab.io/home-manager/options.html
-        # https://github.com/nix-community/home-manager/blob/master/modules/programs/neovim.nix
+          # LSP.
+          nodePackages.pyright
+          gopls
+          rust-analyzer
+        ];
+
+        plugins = with pkgs.vimPlugins;
+          let
+            vimPluginGit = ref: repo: pkgs.vimUtils.buildVimPluginFrom2Nix {
+              pname = "${lib.strings.sanitizeDerivationName repo}";
+              version = ref;
+              src = builtins.fetchGit {
+                url = "https://github.com/${repo}.git";
+                ref = ref;
+              };
+            };
+
+          in [
+            # Theme.
+            tokyonight-nvim
+
+            # Basics.
+            (vimPluginGit "master" "nvim-lualine/lualine.nvim")  # XXX: Package lualine-nvim contains deprecated diagnostics get_count calls.
+            bufferline-nvim
+            { plugin = nvim-web-devicons; optional = true; }  # Required by lualine and bufferline.
+            nerdtree
+            fzfWrapper
+            fzf-vim
+            (vimPluginGit "master" "bfredl/nvim-miniyank")
+
+            # Coding.
+            (nvim-treesitter.withPlugins (plugins: pkgs.tree-sitter.allGrammars))  # Replaces 'ensure_installed = "maintained"' plugin config.
+            tagbar
+            vim-gitgutter
+            vim-fugitive
+            vim-go
+            rust-vim
+
+            # LSP including completion and snippets.
+            nvim-lspconfig
+            nvim-cmp
+            cmp-nvim-lsp
+            cmp_luasnip
+            luasnip
+            friendly-snippets
+          ];
       };
 
-      # TODO: https://github.com/nix-community/home-manager/blob/master/modules/services/window-managers/i3-sway/i3.nix.
-      # NOTE: Next step is dropping xserver block which manages XFCE, set xsession.enable = true, bare i3 + autorandr.
+      programs.go = {
+        enable = true;
+        goPath = "dev/go";
+      };
+
+      # StarBook related, this fixes screen tearing with Intel Iris.
+      services.picom = {
+        enable = true;
+        vSync = true;
+        inactiveDim = "0.2";
+      };
+
+      # Media buttons daemon.
+      services.playerctld.enable = true;
+
       xsession.windowManager.i3 = rec {
         enable = true;
 
@@ -415,44 +725,165 @@ in {
           };
 
           keybindings = pkgs.lib.mkOptionDefault {
-            "${config.modifier}+Shift+e" = "exec xfce4-session-logout";
-            "${config.modifier}+F12" = "exec i3lock-color -c 00000000 --indicator";
+            # In case of a xfce+i3 session: xfce4-session-logout.
+            "${config.modifier}+Shift+e" = "exec i3-nagbar -t warning -m 'Confirm exit?' -b 'Yes' 'i3-msg exit'";
+            "${config.modifier}+F10" = "exec xset r rate 170 70; exec autorandr -c";
+            "${config.modifier}+F11" = "exec systemctl suspend-then-hibernate";
+            "${config.modifier}+F12" = "exec i3lock-color -c 000000 --indicator";
+
+            "${config.modifier}+h" = "exec i3 workspace next";
+            "${config.modifier}+l" = "exec i3 workspace previous";
+            "${config.modifier}+t" = "focus next";
+            "${config.modifier}+o" = "move window to output right";
+            "${config.modifier}+Shift+o" = "move workspace to output right";
+            "${config.modifier}+Shift+t" = "move right";
+          };
+
+          bars = [{
+            position  = "top";
+            fonts.size = 10.0;
+            statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs $HOME/.config/i3status-rust/config-top.toml";
+          }];
+        };
+
+        extraConfig = ''
+          # Volume buttons. Alternatively there is sound.mediaKeys.enable.
+          bindsym XF86AudioMute        exec --no-startup-id pactl set-sink-mute   @DEFAULT_SINK@ toggle
+          bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%
+          bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5%
+
+          # Media buttons.
+          bindsym XF86AudioPlay exec --no-startup-id ${pkgs.playerctl}/bin/playerctl play-pause
+          bindsym XF86AudioNext exec --no-startup-id ${pkgs.playerctl}/bin/playerctl next
+          bindsym XF86AudioPrev exec --no-startup-id ${pkgs.playerctl}/bin/playerctl previous
+
+          # Screenshots.
+          bindsym Print                 exec "scrot -m '%Y%m%d_%H%M%S.png' -e 'mv $f ~/images/screenshots/'"
+          bindsym --release Shift+Print exec "scrot -s '%Y%m%d_%H%M%S.png' -e 'mv $f ~/images/screenshots/'"
+        '';
+      };
+
+      programs.i3status-rust = {
+        enable = true;
+
+        bars = {
+          top = {
+            blocks = [
+              {
+                block = "load";
+                interval = 1;
+                format = "{1m}";
+              }
+              {
+                block = "music";
+                player = "spotify";
+                on_collapsed_click = "spotify";
+                buttons = [ "play" "next" ];
+              }
+              {
+                block = "custom";
+                command = "echo -n ' '; dropbox status | head -n 1";
+              }
+              {
+                block = "networkmanager";
+                on_click = "alacritty -e nmtui";
+                device_format = "{icon}{ap}";
+                interface_name_include = [ "eth.*" "wlan.*" "vpn.*" ];
+              }
+              {
+                block = "custom";
+                command = "echo ";
+                on_click = "bash -c 'blueman-manager; pkill blueman-applet; pkill blueman-tray'";
+              }
+              {
+                block = "sound";
+                on_click = "pavucontrol";
+              }
+              {
+                block = "battery";
+              }
+              {
+                block = "time";
+                interval = 60;
+                format = "%a %d/%m %R";
+              }
+            ];
+            settings = {
+              theme.name = "plain";
+            };
+            icons = "awesome5";
+            theme = "gruvbox-dark";
           };
         };
       };
-      # xdg.configFile."i3blocks/config".source = ./i3blocks.conf;
+
+      services.screen-locker = {
+        enable = true;
+
+        inactiveInterval = 10;
+        lockCmd = "${pkgs.i3lock-color}/bin/i3lock-color -n -c 000000 --indicator";
+      };
 
       programs.alacritty = {
         enable = true;
 
         settings = {
+          font.size = 10;
+
           key_bindings = [
             { key = "Return"; mods = "Command|Shift"; action = "SpawnNewInstance"; }
           ];
+
+          env = {
+            # Required by multi monitor setup with different DPI.
+            WINIT_X11_SCALE_FACTOR = "1";
+          };
         };
       };
 
       programs.firefox = {
         enable = true;
 
-        # TODO
         profiles.kciredor = {
           settings = {
-            "browser.startup.homepage" = "https://kciredor.com/";
-            # "browser.search.region" = "GB";
-            # "browser.search.isUS" = false;
-            # "distribution.searchplugins.defaultLocale" = "en-GB";
-            # "general.useragent.locale" = "en-GB";
-            # "browser.bookmarks.showMobileBookmarks" = true;
-          };
+            # General
+            "browser.warnOnQuitShortcut" = false;
+            "browser.aboutConfig.showWarning" = false;
+            "browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features" = false;
+            "browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons" = false;
+            "browser.toolbars.bookmarks.visibility" = "always";
+            "browser.download.dir" = "${config.home.homeDirectory}/down";
 
-          # extraConfig = '';  # user.js
+            # Home
+            "browser.startup.homepage" = "about:blank";
+            "browser.newtabpage.enabled" = false;
+
+            # Search: via StartPage addon (overrides browser.urlbar.placeholderName when enabled).
+
+            # Privacy & Security
+            "privacy.donottrackheader.enabled" = true;
+            "dom.security.https_only_mode" = true;
+            "signon.rememberSignons" = false;
+            "toolkit.telemetry.enabled" = false;
+            "toolkit.telemetry.reportingpolicy.firstRun" = false;
+            "toolkit.telemetry.server" = "";
+            "app.shield.optoutstudies.enabled" = false; # klopt deze?
+
+            # Sync
+            "services.sync.engine.addons" = false;
+            "services.sync.engine.creditcards" = false;
+            "services.sync.engine.passwords" = false;
+            "services.sync.engine.prefs" = false;
+          };
         };
 
-        # TODO: nix-env -f '<nixpkgs>' -qaP -A nur.repos.rycee.firefox-addons -> https://github.com/nix-community/NUR
-        # NOTE: 21.11: Firefox v91 does not support addons with invalid signature anymore. Firefox ESR needs to be used for nix addon support.
+        # See: https://github.com/nix-community/nur-combined/blob/master/repos/rycee/pkgs/firefox-addons/generated-firefox-addons.nix.
         extensions = with pkgs.nur.repos.rycee.firefox-addons; [
-          https-everywhere
+          startpage-private-search
+
+          onepassword-password-manager
+          vimium
+          ublock-origin
         ];
       };
 

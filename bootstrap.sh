@@ -47,7 +47,7 @@ set -x
 nix-env -iA nixos.git
 mkdir -p /mnt/home/kciredor/ops/nixos
 cd /mnt/home/kciredor/ops/nixos
-git clone https://github.com/kciredor/nixos-config.git config
+git clone --recursive https://github.com/kciredor/nixos-config.git config
 cd config
 git remote rm origin
 git remote add origin git@github.com:kciredor/nixos-config.git
@@ -61,8 +61,9 @@ rm -rf /mnt/etc/nixos
 ln -s /mnt/home/kciredor/ops/nixos/config/nixos /mnt/etc/nixos
 /mnt/home/kciredor/ops/nixos/config/nixos/scripts/nix-sources.sh
 echo "Enter new password for user kciredor"
-mkpasswd -m sha-512 | tr -d '\n' > /mnt/home/kciredor/ops/nixos/config/nixos/secrets/kciredor-password.txt
-chmod 600 /mnt/home/kciredor/ops/nixos/config/nixos/secrets/kciredor-password.txt
+mkdir /mnt/home/kciredor/ops/nixos/config/nixos/secrets/kciredor
+mkpasswd -m sha-512 | tr -d '\n' > /mnt/home/kciredor/ops/nixos/config/nixos/secrets/kciredor/passwd_hash
+chmod 600 /mnt/home/kciredor/ops/nixos/config/nixos/secrets/kciredor/passwd_hash
 nixos-install --no-root-passwd
 set +x
 
@@ -72,8 +73,6 @@ chown -R 1000:100 /mnt/home/kciredor/ops
 chmod -R o-rwx /mnt/home/kciredor/ops
 rm -f /mnt/etc/nixos
 ln -s /home/kciredor/ops/nixos/config/nixos /mnt/etc/nixos
-SOURCE=/home/kciredor TARGET=/mnt/home/kciredor /mnt/home/kciredor/ops/nixos/config/nixos/scripts/kciredor-symlinks.sh
-chown -R --no-dereference 1000:100 /mnt/home/kciredor/.*
 set +x
 
 echo -ne "\n** DONE: PRESS ENTER TO REBOOT **\n\n"

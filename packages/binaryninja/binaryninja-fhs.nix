@@ -1,4 +1,4 @@
-with import <nixpkgs> { };
+with import <nixpkgs> {};
 
 let
   bn-python = pkgs.python39.withPackages(p: with p; [
