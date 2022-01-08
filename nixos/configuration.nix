@@ -38,10 +38,6 @@ in {
     <home-manager/nixos>
   ];
 
-  # Firmware, StarBook related.
-  # FIXME: Older fwupd does not detect Coreboot firmware, see https://github.com/NixOS/nixpkgs/issues/153238.
-  services.fwupd.enable = true;
-
   # Bootloader.
   boot.loader = {
     efi.canTouchEfiVariables = true;
@@ -49,7 +45,7 @@ in {
   };
   boot.initrd.luks.devices = {
       storage = {
-        device = "/dev/nvme0n1p2";
+        device = "/dev/nvme0n1p3";
         preLVM = true;
         allowDiscards = true;  # StarBook actually recommends disabling discard/trim.
       };
@@ -138,8 +134,6 @@ in {
     };
 
     systemPackages = with pkgs; [
-      myFlashrom
-
       vim
       curl
       htop
@@ -154,25 +148,6 @@ in {
 
   # Custom packages.
   nixpkgs.overlays = [(self: super: {
-    # XXX: Latest flashrom release v1.2 is 2 years old and does not detect chipset, see https://github.com/StarLabsLtd/firmware/issues/24#issuecomment-1007455366.
-    myFlashrom = super.flashrom.overrideAttrs (old: {
-      version = "1.2-custom";
-      src = builtins.fetchGit {
-        url = "https://github.com/flashrom/flashrom.git";
-        ref = "b5dc7418e22c15b83e412419099a6d311c5f9f66";
-      };
-      patches = [];
-      postPatch = ''
-        echo "#!/bin/sh" > util/getrevision.sh
-        echo "echo 1.2-custom" >> util/getrevision.sh
-        chmod 755 util/getrevision.sh
-        patchShebangs util/getrevision.sh
-      '';
-      postInstall = ''
-        install -Dm644 util/flashrom_udev.rules $out/lib/udev/rules.d/flashrom.rules
-      '';
-    });
-
     myGhidra = super.ghidra-bin.overrideAttrs (old: {
       version = "10.1";
       src = super.fetchzip {
@@ -267,7 +242,6 @@ in {
 
   # Udev rules.
   services.udev.packages = [
-    pkgs.myFlashrom
     pkgs.yubikey-personalization
   ];
 
@@ -304,7 +278,7 @@ in {
     users.kciredor = {
       uid = 1000;
       isNormalUser = true;
-      extraGroups = [ "wheel" "networkmanager" "docker" "flashrom" ];
+      extraGroups = [ "wheel" "networkmanager" "docker" ];
       shell = pkgs.zsh;
 
       # Workaround for passwordFile during both initial install and rebuilds while having /etc/nixos symlinked.

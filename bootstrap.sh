@@ -9,18 +9,21 @@ set -x
 parted /dev/nvme0n1 -- mklabel gpt
 parted /dev/nvme0n1 -- mkpart ESP fat32 1MiB 512MiB
 parted /dev/nvme0n1 -- set 1 esp on
-parted /dev/nvme0n1 -- mkpart primary 512MiB 100%
-parted /dev/nvme0n1 -- set 2 lvm on
+# Adding 25gb partition for a dual boot OS like Ubuntu allowing for proper firmware upgrades, which is too buggy with NixOS.
+# See: https://github.com/StarLabsLtd/firmware/issues/24.
+parted /dev/nvme0n1 -- mkpart primary 512MiB 26112MiB
+parted /dev/nvme0n1 -- mkpart primary 26112MiB 100%
+parted /dev/nvme0n1 -- set 3 lvm on
 set +x
 
 echo -ne "\n** Setting up encryption **\n\n"
 set -x
-cryptsetup luksFormat /dev/nvme0n1p2
-cryptsetup open --type luks /dev/nvme0n1p2 lvm
+cryptsetup luksFormat /dev/nvme0n1p3
+cryptsetup open --type luks /dev/nvme0n1p3 lvm
 pvcreate /dev/mapper/lvm
 vgcreate storage /dev/mapper/lvm
 lvcreate -L 64G storage -n swap
-lvcreate -L 500G storage -n root
+lvcreate -L 200G storage -n root
 lvcreate -l +100%FREE storage -n home
 set +x
 
