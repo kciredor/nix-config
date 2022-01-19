@@ -35,7 +35,3 @@ fi
 if [[ $REFRESH -eq 1 ]]; then
   nix-channel --update
 fi
-
-# Custom packages that need prefetching.
-nix-store --query --requisites /run/current-system | cut -d- -f2- | sort | uniq | grep -q 'displaylink-5.4.1-55.174' || \
-nix-prefetch-url --name displaylink.zip https://www.synaptics.com/sites/default/files/exe_files/2021-09/DisplayLink%20USB%20Graphics%20Software%20for%20Ubuntu5.4.1-EXE.zip

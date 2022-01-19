@@ -50,8 +50,7 @@ in {
   };
 
   # Kernel.
-  # XXX: Required by DisplayLink to be disabled for now because of bug in their most recent driver package on latest kernels.
-  # boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # Power management.
   services.upower.enable = true;  # StarBook related, included by XFCE as well.
@@ -60,6 +59,12 @@ in {
   # Bluetooth.
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
+
+  # Docking (configured by home-manager).
+  services.autorandr = {
+    enable = true;
+    defaultTarget = "laptop";
+  };
 
   # Virtualisation.
   virtualisation.docker.enable = true;
@@ -176,9 +181,8 @@ in {
   services.xserver = {
     enable = true;
 
-    # StarBook related, recommended Intel Iris settings by NixOS. Needs picom as well to prevent tearing (configured by home-manager). Also adds DisplayLink support.
-    # FIXME: nixos-install does not find displaylink.zip.
-    videoDrivers = [ "displaylink" "modesetting" ];
+    # StarBook related, recommended Intel Iris settings by NixOS. Needs picom as well to prevent tearing (configured by home-manager).
+    videoDrivers = [ "modesetting" ];
     useGlamor = true;
 
     layout = "dvorak";
@@ -347,9 +351,13 @@ in {
       # Systemd unit maintenance (sd-switch is the future default).
       systemd.user.startServices = "sd-switch";
 
-      # Required by DisplayLink.
+      # Docking.
       programs.autorandr = {
         enable = true;
+
+        hooks.postswitch = {
+          "set-ext-keyboard-rate" = "xset r rate 170 70";
+        };
 
         profiles = {
           "laptop" = {
@@ -367,18 +375,18 @@ in {
           "home" = {
             fingerprint = {
               eDP-1 = "00ffffffffffff000daef21400000000161c0104a51f117802ee95a3544c99260f505400000001010101010101010101010101010101363680a0703820402e1e240035ad10000018000000fe004e3134304843472d4751320a20000000fe00434d4e0a202020202020202020000000fe004e3134304843472d4751320a2000bb";
-              DVI-I-1-1 = "00ffffffffffff0010acaaa04c3941301519010380502178eafd25a2584f9f260d5054a54b00714f81008180a940d1c0010101010101e77c70a0d0a029505020ca041e4f3100001a000000ff0036384d434635354a3041394c0a000000fc0044454c4c205533343135570a20000000fd0030551e5920000a20202020202001e5020320f14d9005040302071601141f12135a2309070765030c002000830100009d6770a0d0a0225050205a041e4f3100001a9f3d70a0d0a0155050208a001e4f3100001a584d00b8a1381440942cb5001e4f3100001e7a3eb85060a02950282068001e4f3100001a565e00a0a0a02950302035001e4f3100001a000000000048";
-              DVI-I-2-2 = "00ffffffffffff0010acbaa0534657300f1b010380342078ea0495a9554d9d26105054a54b00714f8180a940d1c0d100010101010101283c80a070b023403020360006442100001e000000ff00374d543031373444305746530a000000fc0044454c4c2055323431350a2020000000fd00313d1e5311000a2020202020200188020322f14f9005040302071601141f12132021222309070765030c00100083010000023a801871382d40582c450006442100001e011d8018711c1620582c250006442100009e011d007251d01e206e28550006442100001e8c0ad08a20e02d10103e960006442100001800000000000000000000000000000000000000000082";
+              DP-2-8 = "00ffffffffffff0010aca6a04c39413015190104a55021783afd25a2584f9f260d5054a54b00714f81008180a940d1c0010101010101e77c70a0d0a029505020ca041e4f3100001a000000ff0036384d434635354a3041394c0a000000fc0044454c4c205533343135570a20000000fd0030551e5920000a2020202020200173020319f14c9005040302071601141f12132309070783010000023a801871382d40582c25001e4f3100001e584d00b8a1381440942cb5001e4f3100001e9d6770a0d0a0225050205a041e4f3100001a7a3eb85060a02950282068001e4f3100001a565e00a0a0a02950302035001e4f3100001a00000000000000000000000062";
+              DP-1 = "00ffffffffffff0010acb8a0534657300f1b0104a53420783a0495a9554d9d26105054a54b00714f8180a940d1c0d100010101010101283c80a070b023403020360006442100001e000000ff00374d543031373444305746530a000000fc0044454c4c2055323431350a2020000000fd00313d1e5311000a202020202020011402031cf14f9005040302071601141f12132021222309070783010000023a801871382d40582c450006442100001e011d8018711c1620582c250006442100009e011d007251d01e206e28550006442100001e8c0ad08a20e02d10103e96000644210000180000000000000000000000000000000000000000000000000000000c";
             };
             config = {
               eDP-1.enable = false;
-              DVI-I-1-1 = {
+              DP-2-8 = {
                 enable = true;
                 primary = true;
                 position = "1920x0";
                 mode = "3440x1440";
               };
-              DVI-I-2-2 = {
+              DP-1 = {
                 enable = true;
                 position = "0x120";
                 mode = "1920x1200";
