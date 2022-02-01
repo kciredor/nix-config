@@ -130,8 +130,6 @@ in {
 
   # System packages.
   environment = {
-    shells = [ pkgs.zsh ];
-    pathsToLink = [ "/share/zsh" ];  # Required by zsh enableCompletion.
     variables = {
       EDITOR = "vim";
     };
@@ -269,6 +267,9 @@ in {
     webInterface = true;
   };
 
+  # Enable fish shell (configured by home-manager).
+  programs.fish.enable = true;
+
   #############################################################################
 
   # Users.
@@ -281,7 +282,7 @@ in {
       uid = 1000;
       isNormalUser = true;
       extraGroups = [ "wheel" "networkmanager" "docker" ];
-      shell = pkgs.zsh;
+      shell = pkgs.fish;
 
       # Workaround for passwordFile during both initial install and rebuilds while having /etc/nixos symlinked.
       # See: https://github.com/NixOS/nixpkgs/issues/148044.
@@ -396,30 +397,18 @@ in {
         };
       };
 
-      programs.zsh = {
+      programs.fish = {
         enable = true;
 
-        dotDir = ".config/zsh";
-        defaultKeymap = "viins";
-        autocd = false;
-        enableAutosuggestions = true;
-        enableVteIntegration = true;
-        enableCompletion = true;
-        enableSyntaxHighlighting = true;
-
-        history = {
-          size = 100000;
-          extended = true;
-          path = ".config/zsh/.zsh_history";
-        };
-
-        envExtra = ''
-          EDITOR="nvim"
-          PATH="/home/kciredor/bin:$PATH"
-        '';
-
-        initExtra = ''
+        shellInit = ''
           umask 027
+
+          fish_vi_key_bindings
+
+          set -xg fish_greeting
+
+          set -xg EDITOR nvim
+          set -xg PATH "/home/kciredor/bin:$PATH"
         '';
 
         shellAliases = {
@@ -446,6 +435,27 @@ in {
 
           clip = "xsel -b";
         };
+
+        plugins = [
+            {
+              name = "bass";
+              src = pkgs.fetchFromGitHub {
+                owner = "edc";
+                repo = "bass";
+                rev = "2fd3d21";
+                sha256 = "0mb01y1d0g8ilsr5m8a71j6xmqlyhf8w4xjf00wkk8k41cz3ypky";
+              };
+            }
+            {
+              name = "fish-kubectl-completions";
+              src = pkgs.fetchFromGitHub {
+                owner = "evanlucas";
+                repo = "fish-kubectl-completions";
+                rev = "ced6763";
+                sha256 = "09qcj82qfs4y4nfwvy90y10xmx6vc9yp33nmyk1mpvx0dx6ri21r";
+              };
+            }
+        ];
       };
 
       home.file.".gdbinit".text = ''
@@ -456,7 +466,7 @@ in {
 
       programs.starship = {
         enable = true;
-        enableZshIntegration = true;
+        enableFishIntegration = true;
 
         settings = {
           directory = {
@@ -519,12 +529,12 @@ in {
 
       programs.fzf = {
         enable = true;
-        enableZshIntegration = true;
+        enableFishIntegration = true;
       };
 
       programs.autojump = {
         enable = true;
-        enableZshIntegration = true;
+        enableFishIntegration = true;
       };
 
       programs.gpg = {
@@ -911,7 +921,7 @@ in {
               }
               {
                 block = "custom";
-                command = "echo -n ' '; dropbox status | head -n 1";
+                command = "bash -c 'echo -n \" $(dropbox status)\" | head -n 1'";
               }
               {
                 block = "networkmanager";
