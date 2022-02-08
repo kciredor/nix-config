@@ -3,18 +3,10 @@
 ###################################
 
 # TODO
-# - Bluetooth headsets (see Pipewire config again).
-# - Backups with Borg (using Vorta or Borgmatic)
-# - Virtualisation.
-#
-# Next steps
-#   - Split up configuration.nix: starbook.nix, x.nix, home.nix, (custom)packages.nix, perhaps secrets.nix (see: https://github.com/balsoft/nixos-config).
-#   - Custom packages: https://nixos.org/manual/nixos/stable/index.html#sec-custom-packages #2: include from repo into c.nix.
-#     - Binary Ninja: ready, just needs the include.
-#     - IDA Pro
-#   - 'gef missing'.
-#   - Try Polybar instead of i3status(-rust).
-#   - Try Wayland with Sway instead of Xorg with i3.
+# - Split up configuration.nix: starbook.nix, x.nix, home.nix, (custom)packages.nix, perhaps secrets.nix (see: https://github.com/balsoft/nixos-config) -> prep for Linux / macOS split usage.
+# - Custom packages: https://nixos.org/manual/nixos/stable/index.html#sec-custom-packages #2: include from repo into c.nix.
+#   - Binary Ninja: ready, just needs the include.
+#   - IDA Pro.
 
 { config, pkgs, lib, ... }:
 
@@ -51,10 +43,17 @@ in {
 
   # Kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.extraModprobeConfig = ''
+    options hid_apple fnmode=0
+  '';
 
   # Power management.
   services.upower.enable = true;  # StarBook related, included by XFCE as well.
   services.logind.lidSwitch = "suspend-then-hibernate";
+  powerManagement.resumeCommands = ''
+    systemctl restart illum.service
+    systemctl --user --machine=kciredor@.host restart imapnotify-gmail.service
+  '';
 
   # Bluetooth.
   hardware.bluetooth.enable = true;
@@ -67,7 +66,13 @@ in {
   };
 
   # Virtualisation.
-  virtualisation.docker.enable = true;
+  virtualisation.docker = {
+    enable = true;
+    # Wireguard MTU is 1420.
+    extraOptions = "--mtu 1392";
+  };
+  virtualisation.libvirtd.enable = true;
+  virtualisation.virtualbox.host.enable = true;
 
   # Networking.
   networking = {
@@ -78,6 +83,13 @@ in {
     networkmanager = {
       enable = true;
       dns = "dnsmasq";
+    };
+
+    interfaces = {
+        wlan0 = {
+            # Allows for tunnelbroker.net IPv6 to function properly.
+            mtu = 1480;
+        };
     };
 
     firewall = {
@@ -121,10 +133,6 @@ in {
       unstable = import <nixos-unstable> {
         config = config.nixpkgs.config;
       };
-
-      nur = import <nur> {
-        inherit pkgs;
-      };
     };
   };
 
@@ -144,17 +152,30 @@ in {
       pulseaudio  # Required by volume buttons bound in i3.
       pavucontrol  # Required by i3status icon.
       arandr
+      virt-manager  # Required by libvirtd.
     ];
   };
 
   # Custom packages.
   nixpkgs.overlays = [(self: super: {
     myGhidra = super.ghidra-bin.overrideAttrs (old: {
-      version = "10.1";
+      version = "10.1.2";
       src = super.fetchzip {
-        url = "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1_build/ghidra_10.1_PUBLIC_20211210.zip";
-        sha256 = "0b4wn2nwxp96dpg3xpabqh74xxv0fhwmqq04wgfjgdh6bavqk86b";
+        url = "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.2_build/ghidra_10.1.2_PUBLIC_20220125.zip";
+        sha256 = "0s40dpc80x1vmv35hwkh02i23rz5abzwckblivbcp71ajp4gw819";
       };
+    });
+    # XXX: Until this is merged: https://github.com/NixOS/nixpkgs/pull/173582.
+    myFerdium = super.ferdi.overrideAttrs (old: rec {
+      pname = "ferdium";
+      name = "Ferdium";
+      version = "6.0.0-nightly.59";
+      src = super.fetchurl {
+        url = "https://github.com/ferdium/ferdium-app/releases/download/v${version}/ferdium_${version}_amd64.deb";
+        sha256 = "14lhilnfyvincrap3xmpwslsawhvq2hzs429f7qfk1na1k0imm16";
+      };
+      installPhase = builtins.replaceStrings ["ferdi" "Ferdi"] ["ferdium" "Ferdium"] old.installPhase;
+      postFixup = builtins.replaceStrings ["ferdi" "Ferdi"] ["ferdium" "Ferdium"] old.postFixup;
     });
   })];
 
@@ -186,13 +207,16 @@ in {
     layout = "dvorak";
     xkbOptions = "eurosign:e, caps:swapescape";
 
-    # Does not seem to work, neither does setting AutoRepeat option on keyboard catchall.
+    # Keyboard repeat rate via seat default. Interval = 1000 / <xset interval>.
     autoRepeatDelay = 170;
-    autoRepeatInterval = 70;
+    autoRepeatInterval = 15;
 
     libinput = {
       enable = true;  # Enabled by default by most desktopmanagers.
-      touchpad.naturalScrolling = true;
+      touchpad = {
+        disableWhileTyping = true;
+        naturalScrolling = true;
+      };
     };
 
     # XFCE can be used together with i3.
@@ -223,9 +247,6 @@ in {
       # XFCE does not honor settings.xserver.[autoRepeatDelay|autoRepeatInterval].
       xfconf-query -c keyboards -p /Default/KeyRepeat/Delay -s 170
       xfconf-query -c keyboards -p /Default/KeyRepeat/Rate -s 70
-
-      # i3 does not honor settings.xserver.[autoRepeatDelay|autoRepeatInterval].
-      xset r rate 170 70
     '';
   };
 
@@ -270,6 +291,44 @@ in {
   # Enable fish shell (configured by home-manager).
   programs.fish.enable = true;
 
+  # Required by libvirtd.
+  programs.dconf.enable = true;
+
+  # Backups using Borg.
+  services.borgbackup.jobs = {
+    borgbase = {
+      paths = [
+        "/home"
+      ];
+      exclude = [
+        ".cache"
+
+        "/home/kciredor/.config/Ferdi"
+
+        "/home/kciredor/down"
+        "/home/kciredor/tmp"
+        "/home/kciredor/vm"
+      ];
+      repo = lib.strings.fileContents ./secrets/kciredor/borgbase_repo.url;
+      encryption = {
+        mode = "repokey-blake2";
+        passCommand = "/home/kciredor/ops/nixos/config/nixos/secrets/kciredor/borgbase_passphrase.sh";
+      };
+      environment = {
+        BORG_RSH = "ssh -i /home/kciredor/ops/nixos/config/nixos/secrets/kciredor/borgbase_ssh";
+      };
+      compression = "auto,lzma";
+      startAt = [ "daily" ];
+      extraCreateArgs = "--verbose --stats --checkpoint-interval 600";
+      prune.keep = {
+        within = "1d";
+        daily = 7;
+        weekly = 4;
+        monthly = 6;
+      };
+    };
+  };
+
   #############################################################################
 
   # Users.
@@ -281,7 +340,7 @@ in {
     users.kciredor = {
       uid = 1000;
       isNormalUser = true;
-      extraGroups = [ "wheel" "networkmanager" "docker" ];
+      extraGroups = [ "wheel" "networkmanager" "docker" "libvirtd" "vboxusers" ];
       shell = pkgs.fish;
 
       # Workaround for passwordFile during both initial install and rebuilds while having /etc/nixos symlinked.
@@ -307,25 +366,51 @@ in {
     useUserPackages = true;
     useGlobalPkgs = true;
 
+    users.root = { config, pkgs, lib, ... }: {
+      home.activation = {
+        userscripts = lib.hm.dag.entryAfter ["writeBoundary"] ''
+          $DRY_RUN_CMD /home/kciredor/ops/nixos/config/nixos/scripts/root/borgssh.sh $VERBOSE_ARG
+        '';
+      };
+    };
+
     users.kciredor = { config, pkgs, lib, ... }: {
       home.packages = with pkgs; [
-        nerdfonts  # Includes powerline and fontawesome. Required by Starship, i3status-rust, vim-lualine and vim-bufferline.
+        (nerdfonts.override { fonts = [ "FiraMono" ]; })  # Includes powerline and fontawesome. Required by Starship, i3status-rust, vim-lualine and vim-bufferline.
 
         exa
+        bat
         binutils-unwrapped  # Required by gdb-gef.
         unzip
         urlscan  # Required by neomutt.
+
         kubectl
         kubectx
+        kubernetes-helm
+        terraform
         google-cloud-sdk
         awscli
         azure-cli
+        dnsutils
+        inetutils
+        jq
+
         rustc
         rustfmt
         cargo
-        (python39.withPackages(ps: with ps; [
+        (python3.withPackages(ps: with ps; [
           goobook
+
+          ROPGadget
+
+          # Required by gdb-gef.
+          capstone
+          keystone-engine
+          unicorn
+          ropper  # XXX: Should become buildPythonPackage instead of buildPythonApplication, see: https://github.com/NixOS/nixpkgs/issues/156876. Switch from gef to pwndbg?
         ]))
+        gettext
+        lessc
 
         libnotify
         xsel  # Required by tmux-yank.
@@ -335,8 +420,11 @@ in {
         yubioath-desktop
         standardnotes
         todoist-electron
-        rambox
         spotify
+        myFerdium
+
+        wineWowPackages.stable
+        winetricks
 
         myGhidra
       ];
@@ -357,7 +445,7 @@ in {
         enable = true;
 
         hooks.postswitch = {
-          "set-ext-keyboard-rate" = "xset r rate 170 70";
+          "rescale-wallpaper" = "/home/kciredor/.fehbg";
         };
 
         profiles = {
@@ -394,7 +482,100 @@ in {
               };
             };
           };
+          # Sometimes after a clean reboot DP-1 and DP-2 are mixed up.
+          "home-alt" = {
+            fingerprint = {
+              eDP-1 = "00ffffffffffff000daef21400000000161c0104a51f117802ee95a3544c99260f505400000001010101010101010101010101010101363680a0703820402e1e240035ad10000018000000fe004e3134304843472d4751320a20000000fe00434d4e0a202020202020202020000000fe004e3134304843472d4751320a2000bb";
+              DP-1-8 = "00ffffffffffff0010aca6a04c39413015190104a55021783afd25a2584f9f260d5054a54b00714f81008180a940d1c0010101010101e77c70a0d0a029505020ca041e4f3100001a000000ff0036384d434635354a3041394c0a000000fc0044454c4c205533343135570a20000000fd0030551e5920000a2020202020200173020319f14c9005040302071601141f12132309070783010000023a801871382d40582c25001e4f3100001e584d00b8a1381440942cb5001e4f3100001e9d6770a0d0a0225050205a041e4f3100001a7a3eb85060a02950282068001e4f3100001a565e00a0a0a02950302035001e4f3100001a00000000000000000000000062";
+              DP-2 = "00ffffffffffff0010acb8a0534657300f1b0104a53420783a0495a9554d9d26105054a54b00714f8180a940d1c0d100010101010101283c80a070b023403020360006442100001e000000ff00374d543031373444305746530a000000fc0044454c4c2055323431350a2020000000fd00313d1e5311000a202020202020011402031cf14f9005040302071601141f12132021222309070783010000023a801871382d40582c450006442100001e011d8018711c1620582c250006442100009e011d007251d01e206e28550006442100001e8c0ad08a20e02d10103e96000644210000180000000000000000000000000000000000000000000000000000000c";
+            };
+            config = {
+              eDP-1.enable = false;
+              DP-1-8 = {
+                enable = true;
+                primary = true;
+                position = "1920x0";
+                mode = "3440x1440";
+              };
+              DP-2 = {
+                enable = true;
+                position = "0x120";
+                mode = "1920x1200";
+              };
+            };
+          };
+          "work-denhaag" = {
+            fingerprint = {
+              eDP-1 = "00ffffffffffff000daef21400000000161c0104a51f117802ee95a3544c99260f505400000001010101010101010101010101010101363680a0703820402e1e240035ad10000018000000fe004e3134304843472d4751320a20000000fe00434d4e0a202020202020202020000000fe004e3134304843472d4751320a2000bb";
+              HDMI-1 = "00ffffffffffff00220e6934010101011b1c010380351e782a0565a756529c270f5054a10800d1c081c0a9c0b3009500810081800101023a801871382d40582c45000f282100001e000000fd00323c1e5011000a202020202020000000fc00485020453234330a2020202020000000ff00434e4338323731524e300a202001cd020319b149901f0413031202110167030c0010000022e2002b023a801871382d40582c45000f282100001e023a80d072382d40102c45800f282100001e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001";
+            };
+            config = {
+              eDP-1 = {
+                enable = true;
+                position = "0x1080";
+                mode = "1920x1080";
+              };
+              HDMI-1 = {
+                enable = true;
+                primary = true;
+                position = "0x0";
+                mode = "1920x1080";
+              };
+            };
+          };
+          "work-utrecht" = {
+            fingerprint = {
+              eDP-1 = "00ffffffffffff000daef21400000000161c0104a51f117802ee95a3544c99260f505400000001010101010101010101010101010101363680a0703820402e1e240035ad10000018000000fe004e3134304843472d4751320a20000000fe00434d4e0a202020202020202020000000fe004e3134304843472d4751320a2000bb";
+              DP-1 = "00ffffffffffff004c2d250e30335230251d0104a55021783ae345a754529925125054bfef80714f810081c081809500a9c0b3000101e77c70a0d0a0295030203a001d4d3100001a000000fd0032641e9837000a202020202020000000fc00433334483839780a2020202020000000ff0048544f4d3930303230380a202001fe020314f147901f041303125a23090707830100004ed470a0d0a0465030203a001d4d3100001a9d6770a0d0a0225030203a001d4d3100001a565e00a0a0a02950302035001d4d3100001a023a801871382d40582c450000000000001e584d00b8a1381440f82c45001d4d3100001e00000000000000000000000000000000004c";
+            };
+            config = {
+              eDP-1 = {
+                enable = true;
+                position = "760x1440";
+                mode = "1920x1080";
+              };
+              DP-1 = {
+                enable = true;
+                primary = true;
+                position = "0x0";
+                mode = "3440x1440";
+              };
+            };
+          };
         };
+      };
+
+      fonts.fontconfig.enable = true;
+
+      # Allows for integrations like starship when dropping to nix-shell which does not play nice with fish.
+      programs.bash.enable = true;
+
+      # Shared by all shells.
+      home.shellAliases = {
+        vinix   = "vim ~/ops/nixos/config/nixos/configuration.nix ~/ops/nixos/config/nixos/home.nix";
+        rebuild = "sudo nix-channel --update && sudo nixos-rebuild switch";
+
+        ls      = "exa -g";
+        l       = "ls -l";
+        la      = "ls -alg";
+        lr      = "ls -lRg";
+        lt      = "ls --tree";
+        lg      = "ls -g --long --git";
+
+        cat     = "bat";
+
+        ".."    = "cd ../";
+        "..."   = "cd ../../";
+        "...."  = "cd ../../../";
+        "....." = "cd ../../../../";
+
+        gss     = "git status -s";
+        gco     = "git checkout";
+        gp      = "git push";
+        gc      = "git commit -v";
+        glgg    = "git log --graph";
+
+        clip    = "xsel -b";
       };
 
       programs.fish = {
@@ -410,31 +591,6 @@ in {
           set -xg EDITOR nvim
           set -xg PATH "/home/kciredor/bin:$PATH"
         '';
-
-        shellAliases = {
-          vinix = "vim ~/ops/nixos/config/nixos/configuration.nix";
-          rebuild = "sudo nix-channel --update && sudo nixos-rebuild switch";
-
-          ls = "exa -g";
-          l  = "ls -l";
-          la = "ls -alg";
-          lr = "ls -lRg";
-          lt = "ls --tree";
-          lg = "ls -g --long --git";
-
-          ".." = "cd ../";
-          "..." = "cd ../../";
-          "...." = "cd ../../../";
-          "....." = "cd ../../../../";
-
-          gss = "git status -s";
-          gco = "git checkout";
-          gp = "git push";
-          gc = "git commit -v";
-          glgg = "git log --graph";
-
-          clip = "xsel -b";
-        };
 
         plugins = [
             {
@@ -466,6 +622,7 @@ in {
 
       programs.starship = {
         enable = true;
+        enableBashIntegration = true;
         enableFishIntegration = true;
 
         settings = {
@@ -502,6 +659,7 @@ in {
         escapeTime = 0;
         keyMode = "vi";
         terminal = "screen-256color";
+        tmuxp.enable = true;
 
         extraConfig = ''
           setw -g monitor-activity on
@@ -529,11 +687,13 @@ in {
 
       programs.fzf = {
         enable = true;
+        enableBashIntegration = true;
         enableFishIntegration = true;
       };
 
       programs.autojump = {
         enable = true;
+        enableBashIntegration = true;
         enableFishIntegration = true;
       };
 
@@ -576,6 +736,8 @@ in {
           "${config.home.homeDirectory}/ops/nixos/config/nixos/secrets/kciredor/ssh_hosts"
         ];
       };
+
+      services.keybase.enable = true;
 
       programs.git = {
         enable = true;
@@ -866,12 +1028,12 @@ in {
           keybindings = pkgs.lib.mkOptionDefault {
             # In case of a xfce+i3 session: xfce4-session-logout.
             "${config.modifier}+Shift+e" = "exec i3-nagbar -t warning -m 'Confirm exit?' -b 'Yes' 'i3-msg exit'";
-            "${config.modifier}+F10" = "exec xset r rate 170 70; exec autorandr -c";
+            "${config.modifier}+F10" = "exec autorandr -c";
             "${config.modifier}+F11" = "exec systemctl suspend-then-hibernate";
             "${config.modifier}+F12" = "exec i3lock-color -c 000000 --indicator";
 
-            "${config.modifier}+h" = "exec i3 workspace next";
-            "${config.modifier}+l" = "exec i3 workspace previous";
+            "${config.modifier}+h" = "exec i3 workspace previous";
+            "${config.modifier}+l" = "exec i3 workspace next";
             "${config.modifier}+t" = "focus next";
             "${config.modifier}+o" = "move window to output right";
             "${config.modifier}+Shift+o" = "move workspace to output right";
@@ -897,8 +1059,8 @@ in {
           bindsym XF86AudioPrev exec --no-startup-id ${pkgs.playerctl}/bin/playerctl previous
 
           # Screenshots.
-          bindsym Print                 exec "scrot -m '%Y%m%d_%H%M%S.png' -e 'mv $f ~/images/screenshots/'"
-          bindsym --release Shift+Print exec "scrot -s '%Y%m%d_%H%M%S.png' -e 'mv $f ~/images/screenshots/'"
+          bindsym Print                 exec "scrot -m '%Y%m%d_%H%M%S.png' -e 'mv $f ~/images/screenshots/ ; ${pkgs.libnotify}/bin/notify-send Screenshot $f'"
+          bindsym --release Shift+Print exec "scrot -s '%Y%m%d_%H%M%S.png' -e 'mv $f ~/images/screenshots/ ; ${pkgs.libnotify}/bin/notify-send Screenshot $f'"
         '';
       };
 
@@ -924,6 +1086,11 @@ in {
                 command = "bash -c 'echo -n \" $(dropbox status)\" | head -n 1'";
               }
               {
+                block = "custom";
+                command = "journalctl -u borgbackup-job-borgbase.service | grep Deactivated | tail -n 1 | awk '{ print \" \" $1 \" \" $2 }'";
+                shell = "bash";
+              }
+              {
                 block = "networkmanager";
                 on_click = "alacritty -e nmtui";
                 device_format = "{icon}{ap}";
@@ -947,11 +1114,8 @@ in {
                 format = "%a %d/%m %R";
               }
             ];
-            settings = {
-              theme.name = "plain";
-            };
-            icons = "awesome5";
             theme = "gruvbox-dark";
+            icons = "awesome5";
           };
         };
       };
@@ -980,49 +1144,16 @@ in {
         };
       };
 
-      programs.firefox = {
+      programs.chromium = {
         enable = true;
+        package = pkgs.unstable.brave;
 
-        profiles.kciredor = {
-          settings = {
-            # General
-            "browser.warnOnQuitShortcut" = false;
-            "browser.aboutConfig.showWarning" = false;
-            "browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features" = false;
-            "browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons" = false;
-            "browser.toolbars.bookmarks.visibility" = "always";
-            "browser.download.dir" = "${config.home.homeDirectory}/down";
-
-            # Home
-            "browser.startup.homepage" = "about:blank";
-            "browser.newtabpage.enabled" = false;
-
-            # Search: via StartPage addon (overrides browser.urlbar.placeholderName when enabled).
-
-            # Privacy & Security
-            "privacy.donottrackheader.enabled" = true;
-            "dom.security.https_only_mode" = true;
-            "signon.rememberSignons" = false;
-            "toolkit.telemetry.enabled" = false;
-            "toolkit.telemetry.reportingpolicy.firstRun" = false;
-            "toolkit.telemetry.server" = "";
-            "app.shield.optoutstudies.enabled" = false; # klopt deze?
-
-            # Sync
-            "services.sync.engine.addons" = false;
-            "services.sync.engine.creditcards" = false;
-            "services.sync.engine.passwords" = false;
-            "services.sync.engine.prefs" = false;
-          };
-        };
-
-        # See: https://github.com/nix-community/nur-combined/blob/master/repos/rycee/pkgs/firefox-addons/generated-firefox-addons.nix.
-        extensions = with pkgs.nur.repos.rycee.firefox-addons; [
-          startpage-private-search
-
-          onepassword-password-manager
-          vimium
-          ublock-origin
+        extensions = [
+          { id = "aeblfdkhhhdcdjpifhhbdiojplfjncoa"; }  # 1password.
+          { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; }  # Vimium.
+          { id = "fihnjjcciajhdojfnbdddfaoknhalnja"; }  # I don't care about cookies.
+          { id = "niloccemoadcdkdjlinkgdfekeahmflj"; }  # Pocket.
+          { id = "kkmknnnjliniefekpicbaaobdnjjikfp"; }  # Cache killer.
         ];
       };
 

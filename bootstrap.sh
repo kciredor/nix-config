@@ -63,8 +63,9 @@ mv /mnt/etc/nixos/hardware-configuration.nix /mnt/home/kciredor/ops/nixos/config
 rm -rf /mnt/etc/nixos
 ln -s /mnt/home/kciredor/ops/nixos/config/nixos /mnt/etc/nixos
 /mnt/home/kciredor/ops/nixos/config/nixos/scripts/nix-sources.sh
-echo "Enter new password for user kciredor"
 mkdir /mnt/home/kciredor/ops/nixos/config/nixos/secrets/kciredor
+cp -R /mnt/home/kciredor/ops/nixos/config/nixos/secrets/exampleuser/* /mnt/home/kciredor/ops/nixos/config/nixos/secrets/kciredor/
+echo "Enter new password for user kciredor"
 mkpasswd -m sha-512 | tr -d '\n' > /mnt/home/kciredor/ops/nixos/config/nixos/secrets/kciredor/passwd_hash
 chmod 600 /mnt/home/kciredor/ops/nixos/config/nixos/secrets/kciredor/passwd_hash
 nixos-install --no-root-passwd

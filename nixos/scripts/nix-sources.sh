@@ -25,13 +25,6 @@ if [[ ! $OUTPUT =~ home-manager ]]; then
   nix-channel --add https://github.com/nix-community/home-manager/archive/release-21.11.tar.gz home-manager
 fi
 
-# Required by Firefox.
-if [[ ! $OUTPUT =~ nur ]]; then
-  REFRESH=1
-
-  nix-channel --add https://github.com/nix-community/NUR/archive/master.tar.gz nur
-fi
-
 if [[ $REFRESH -eq 1 ]]; then
   nix-channel --update
 fi

@@ -4,6 +4,9 @@ set -e
 
 echo "[Activation script] scripts/kciredor/symlinks.sh"
 
+# Wallpaper.
+[[ -e $HOME/.background-image ]] || ln -s $HOME/ops/nixos/config/dotfiles/kciredor/wallpapers/purple.jpg $HOME/.background-image
+
 # IDA Pro.
 [[ -e $HOME/.idapro ]] || ln -s $HOME/ops/nixos/config/dotfiles/kciredor/idapro $HOME/.idapro
 
