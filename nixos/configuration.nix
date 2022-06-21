@@ -43,10 +43,11 @@ in {
   };
 
   # Kernel.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # boot.kernelPackages = pkgs.linuxPackages_latest;  # Not using latest because of incompatibility with VMware host currently.
   boot.extraModprobeConfig = ''
     options hid_apple fnmode=0
   '';
+  boot.kernelParams = [ "transparent_hugepage=never" ];  # Required by VMware host.
 
   # Power management.
   services.upower.enable = true;  # StarBook related, included by XFCE as well.
@@ -73,6 +74,7 @@ in {
     extraOptions = "--mtu 1392";
   };
   virtualisation.libvirtd.enable = true;
+  virtualisation.vmware.host.enable = true;
 
   # Networking.
   networking = {
