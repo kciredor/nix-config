@@ -73,7 +73,6 @@ in {
     extraOptions = "--mtu 1392";
   };
   virtualisation.libvirtd.enable = true;
-  virtualisation.virtualbox.host.enable = true;
 
   # Networking.
   networking = {
