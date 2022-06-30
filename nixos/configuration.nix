@@ -3,10 +3,7 @@
 ###################################
 
 # TODO
-# - Split up configuration.nix: starbook.nix, x.nix, home.nix, (custom)packages.nix, perhaps secrets.nix (see: https://github.com/balsoft/nixos-config) -> prep for Linux / macOS split usage.
-# - Custom packages: https://nixos.org/manual/nixos/stable/index.html#sec-custom-packages #2: include from repo into c.nix.
-#   - Binary Ninja: ready, just needs the include.
-#   - IDA Pro.
+# - Split up configuration.nix, perhaps add a secrets.nix (see: https://github.com/balsoft/nixos-config) -> prep for Linux / macOS split usage.
 
 { config, pkgs, lib, ... }:
 
@@ -109,6 +106,11 @@ in {
         ip46tables -t raw -D nixos-fw-rpfilter -p udp -m udp --dport 51820 -j RETURN || true
       '';
     };
+
+    extraHosts = ''
+      127.0.0.1 linkedin.com
+      127.0.0.1 www.linkedin.com
+    '';
   };
 
   # VPN.

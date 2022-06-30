@@ -32,22 +32,22 @@ in (pkgs.buildFHSUserEnv {
     libudev0-shim
 
     bn-python
-  ]) ++ (with pkgs.xlibs; [
-    xlibs.libX11
-    xlibs.libXi
-    xlibs.libXfixes
-    xlibs.libXrender
-    xlibs.libXcomposite
-    xlibs.libXdamage
-    xlibs.libXcursor
-    xlibs.libXext
-    xlibs.libxcb
-    xlibs.libXtst
-    xlibs.libXrandr
-    xlibs.xcbutilwm
-    xlibs.xcbutilimage
-    xlibs.xcbutilkeysyms
-    xlibs.xcbutilrenderutil
+  ]) ++ (with pkgs.xorg; [
+    xorg.libX11
+    xorg.libXi
+    xorg.libXfixes
+    xorg.libXrender
+    xorg.libXcomposite
+    xorg.libXdamage
+    xorg.libXcursor
+    xorg.libXext
+    xorg.libxcb
+    xorg.libXtst
+    xorg.libXrandr
+    xorg.xcbutilwm
+    xorg.xcbutilimage
+    xorg.xcbutilkeysyms
+    xorg.xcbutilrenderutil
   ]);
 
   runScript = "$HOME/opt/binaryninja/binaryninja";
