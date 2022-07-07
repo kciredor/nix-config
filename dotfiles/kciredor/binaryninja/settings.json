@@ -1,5 +1,6 @@
 {
 	"analysis.database.suppressReanalysis" : true,
+	"corePlugins.debugger" : true,
 	"python.binaryOverride" : "/usr/bin/python",
 	"rendering.hlil.scopingStyle" : "braces",
 	"ui.featureMap.location" : "top",

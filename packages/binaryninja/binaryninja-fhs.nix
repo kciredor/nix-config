@@ -50,5 +50,11 @@ in (pkgs.buildFHSUserEnv {
     xorg.xcbutilrenderutil
   ]);
 
+  # Core debugger lldb dependency requires a specific ncurses version and perhaps will be statically linked in the future.
+  # Workaround: copy over 3 files from Ubuntu 22.04 LTS: libncurses.so.6, libpanel.so.6, libtinfo.so.6.
+  profile = ''
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/ops/nixos/config/packages/binaryninja/libs_from_ubuntu_2204
+  '';
+
   runScript = "$HOME/opt/binaryninja/binaryninja";
 })
