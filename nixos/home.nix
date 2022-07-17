@@ -29,7 +29,6 @@
         kubectx
         kubernetes-helm
         terraform
-        google-cloud-sdk
         awscli
         azure-cli
         dnsutils

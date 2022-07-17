@@ -49,6 +49,9 @@ in {
   # Power management.
   services.upower.enable = true;  # StarBook related, included by XFCE as well.
   services.logind.lidSwitch = "suspend-then-hibernate";
+  systemd.sleep.extraConfig = ''
+    HibernateDelaySec=3h
+  '';
   powerManagement.resumeCommands = ''
     systemctl restart illum.service
     systemctl --user --machine=kciredor@.host restart imapnotify-gmail.service
