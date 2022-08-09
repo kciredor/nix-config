@@ -28,6 +28,7 @@
         kubectl
         kubectx
         kubernetes-helm
+        k9s
         terraform
         awscli
         azure-cli
@@ -58,10 +59,10 @@
         feh
         i3lock-color
         yubioath-desktop
+        cider
         standardnotes
         todoist-electron
-        spotify
-        myFerdium
+        unstable.ferdium
   
         wineWowPackages.stable
         winetricks
@@ -467,10 +468,10 @@
             tokyonight-nvim
   
             # Basics.
-            (vimPluginGit "master" "nvim-lualine/lualine.nvim")  # XXX: Package lualine-nvim contains deprecated diagnostics get_count calls.
+            lualine-nvim
             bufferline-nvim
-            { plugin = nvim-web-devicons; optional = true; }  # Required by lualine and bufferline.
-            nerdtree
+            { plugin = nvim-web-devicons; optional = true; }  # Required by lualine, bufferline and nvim-tree.
+            (vimPluginGit "master" "kyazdani42/nvim-tree.lua")  # XXX: Package nvim-tree-lua currently does not provide all current setup settings.
             fzfWrapper
             fzf-vim
             (vimPluginGit "master" "bfredl/nvim-miniyank")
@@ -717,8 +718,8 @@
               }
               {
                 block = "music";
-                player = "spotify";
-                on_collapsed_click = "spotify";
+                player = "cider";
+                on_collapsed_click = "cider";
                 buttons = [ "play" "next" ];
               }
               {

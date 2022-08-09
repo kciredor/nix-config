@@ -4,9 +4,8 @@ nnoremap <silent><C-l> :BufferLineCycleNext<CR>
 nnoremap <silent><C-h> :BufferLineCyclePrev<CR>
 nmap <leader>d :bd<cr>
 
-" nerdtree
-let g:NERDTreeWinPos = "right"
-nmap <silent> <leader>h :NERDTreeToggle<CR>
+" nvim-tree
+nmap <silent> <leader>h :NvimTreeToggle<CR>
 
 " fzfWrapper / fzf-vim
 nmap <leader>o :Files<cr>

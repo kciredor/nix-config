@@ -3,7 +3,7 @@
 ###################################
 
 # TODO
-# - Split up configuration.nix, perhaps add a secrets.nix (see: https://github.com/balsoft/nixos-config) -> prep for Linux / macOS split usage.
+# - Split up configuration.nix, perhaps add a secrets.nix (see: https://github.com/balsoft/nixos-config) -> prep for Linux / macOS split usage: https://nixos.wiki/wiki/Extend_NixOS#Conditional_Implementation.
 
 { config, pkgs, lib, ... }:
 
@@ -81,11 +81,12 @@ in {
     hostName = "rs-sb";
     usePredictableInterfaceNames = false;
 
-    # Using dnsmasq ensures wireguard up and down does not clear resolv.conf.
     networkmanager = {
       enable = true;
-      dns = "dnsmasq";
+      dns = "none";
     };
+
+    nameservers = [ "10.7.0.1" "1.1.1.1" "8.8.8.8" ];
 
     interfaces = {
         wlan0 = {
@@ -166,23 +167,11 @@ in {
   # Custom packages.
   nixpkgs.overlays = [(self: super: {
     myGhidra = super.ghidra-bin.overrideAttrs (old: {
-      version = "10.1.2";
+      version = "10.1.5";
       src = super.fetchzip {
-        url = "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.2_build/ghidra_10.1.2_PUBLIC_20220125.zip";
-        sha256 = "0s40dpc80x1vmv35hwkh02i23rz5abzwckblivbcp71ajp4gw819";
+        url = "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.5_build/ghidra_10.1.5_PUBLIC_20220726.zip";
+        sha256 = "sha256-HjsbOTI+mHSmgFREGuUXKT7gbSSk2Gw/sLzP6eAkUX8=";
       };
-    });
-    # XXX: Until this is merged: https://github.com/NixOS/nixpkgs/pull/173582.
-    myFerdium = super.ferdi.overrideAttrs (old: rec {
-      pname = "ferdium";
-      name = "Ferdium";
-      version = "6.0.0-nightly.59";
-      src = super.fetchurl {
-        url = "https://github.com/ferdium/ferdium-app/releases/download/v${version}/ferdium_${version}_amd64.deb";
-        sha256 = "14lhilnfyvincrap3xmpwslsawhvq2hzs429f7qfk1na1k0imm16";
-      };
-      installPhase = builtins.replaceStrings ["ferdi" "Ferdi"] ["ferdium" "Ferdium"] old.installPhase;
-      postFixup = builtins.replaceStrings ["ferdi" "Ferdi"] ["ferdium" "Ferdium"] old.postFixup;
     });
   })];
 

@@ -5,7 +5,7 @@
 	"rendering.hlil.scopingStyle" : "braces",
 	"ui.featureMap.location" : "top",
 	"ui.pluginManager.warnCommunityInstall" : false,
-	"ui.theme" : "Solarized Dark",
+	"ui.theme.name" : "Solarized Dark",
 	"ui.view.graph.preferred" : true,
 	"user.email" : "roderick@wehandle.it",
 	"user.name" : "kciredor"
