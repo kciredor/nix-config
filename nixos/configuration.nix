@@ -144,6 +144,10 @@ in {
     };
   };
 
+  nix.extraOptions = ''
+    trusted-users = root kciredor
+  '';
+
   # System packages.
   environment = {
     variables = {
