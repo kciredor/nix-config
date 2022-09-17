@@ -110,11 +110,6 @@ in {
         ip46tables -t raw -D nixos-fw-rpfilter -p udp -m udp --dport 51820 -j RETURN || true
       '';
     };
-
-    extraHosts = ''
-      127.0.0.1 linkedin.com
-      127.0.0.1 www.linkedin.com
-    '';
   };
 
   # VPN.
@@ -160,6 +155,7 @@ in {
       htop
       ripgrep
       gdb
+      gcc
 
       pulseaudio  # Required by volume buttons bound in i3.
       pavucontrol  # Required by i3status icon.

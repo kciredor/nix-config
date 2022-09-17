@@ -39,6 +39,7 @@
         rustc
         rustfmt
         cargo
+        clippy
         (python3.withPackages(ps: with ps; [
           goobook
   
@@ -60,8 +61,7 @@
         i3lock-color
         yubioath-desktop
         cider
-        standardnotes
-        todoist-electron
+        unstable.standardnotes
         unstable.ferdium
   
         wineWowPackages.stable
@@ -423,7 +423,7 @@
   
       programs.neovim = {
         enable = true;
-        package = pkgs.unstable.neovim-unwrapped;
+        package = pkgs.neovim-unwrapped;
   
         viAlias = true;
         vimAlias = true;
@@ -642,6 +642,7 @@
       programs.go = {
         enable = true;
         goPath = "dev/go";
+        package = pkgs.unstable.go;
       };
   
       # StarBook related, this fixes screen tearing with Intel Iris.
@@ -671,7 +672,7 @@
             "${config.modifier}+Shift+e" = "exec i3-nagbar -t warning -m 'Confirm exit?' -b 'Yes' 'i3-msg exit'";
             "${config.modifier}+F10" = "exec autorandr -c";
             "${config.modifier}+F11" = "exec systemctl suspend-then-hibernate";
-            "${config.modifier}+F12" = "exec i3lock-color -c 000000 --indicator";
+            "${config.modifier}+F12" = "exec i3lock-color -i ~/.background-image --ring-color=000000 --keyhl-color ffffff";
   
             "${config.modifier}+h" = "exec i3 workspace previous";
             "${config.modifier}+l" = "exec i3 workspace next";
@@ -765,7 +766,7 @@
         enable = true;
   
         inactiveInterval = 10;
-        lockCmd = "${pkgs.i3lock-color}/bin/i3lock-color -n -c 000000 --indicator";
+        lockCmd = "${pkgs.i3lock-color}/bin/i3lock-color -i ~/.background-image --ring-color=000000 --keyhl-color ffffff";
       };
   
       programs.alacritty = {
