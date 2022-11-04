@@ -167,11 +167,18 @@ in {
   # Custom packages.
   nixpkgs.overlays = [(self: super: {
     myGhidra = super.ghidra-bin.overrideAttrs (old: {
-      version = "10.1.5";
+      # Pins latest public release.
+      version = "10.2";
       src = super.fetchzip {
-        url = "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.5_build/ghidra_10.1.5_PUBLIC_20220726.zip";
-        sha256 = "sha256-HjsbOTI+mHSmgFREGuUXKT7gbSSk2Gw/sLzP6eAkUX8=";
+        url = "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.2_build/ghidra_10.2_PUBLIC_20221101.zip";
+        sha256 = "sha256-H8SwOfYstzm7bUe2d/zB1ax705/SCQ49ZhACUfPz/zw=";
       };
+      # Adds openjdk17 requirement as of Ghidra 10.2.
+      postFixup = ''
+        mkdir -p "$out/bin"
+        ln -s "$out/lib/ghidra/ghidraRun" "$out/bin/ghidra"
+        wrapProgram "$out/lib/ghidra/support/launch.sh" --prefix PATH : ${lib.makeBinPath [ pkgs.openjdk17 ]}
+      '';
     });
   })];
 
