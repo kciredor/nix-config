@@ -36,10 +36,7 @@
         inetutils
         jq
   
-        rustc
-        rustfmt
-        cargo
-        clippy
+        rustup
         (python3.withPackages(ps: with ps; [
           goobook
   
@@ -75,6 +72,7 @@
         userscripts = lib.hm.dag.entryAfter ["writeBoundary"] ''
           $DRY_RUN_CMD $HOME/ops/nixos/config/nixos/scripts/kciredor/yubikey.sh $VERBOSE_ARG
           $DRY_RUN_CMD $HOME/ops/nixos/config/nixos/scripts/kciredor/symlinks.sh $VERBOSE_ARG
+          $DRY_RUN_CMD $HOME/ops/nixos/config/nixos/scripts/kciredor/initapps.sh $VERBOSE_ARG
         '';
       };
   
