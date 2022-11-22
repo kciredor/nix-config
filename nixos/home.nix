@@ -23,6 +23,7 @@
         bat
         binutils-unwrapped  # Required by gdb-gef.
         unzip
+        unrar
         urlscan  # Required by neomutt.
   
         kubectl
@@ -35,6 +36,7 @@
         dnsutils
         inetutils
         jq
+        gnumake
   
         rustup
         (python3.withPackages(ps: with ps; [
@@ -46,7 +48,7 @@
           capstone
           keystone-engine
           unicorn
-          ropper  # XXX: Should become buildPythonPackage instead of buildPythonApplication, see: https://github.com/NixOS/nixpkgs/issues/156876. Switch from gef to pwndbg?
+          ropper
         ]))
         gettext
         lessc
@@ -65,6 +67,9 @@
         winetricks
   
         myGhidra
+        chromium
+
+        unstable.webex
       ];
   
       # User scripts are activated by `nixos-rebuild boot` upon reboot covering nixos-install and during `nixos-rebuild switch`.
