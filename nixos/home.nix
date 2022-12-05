@@ -8,6 +8,8 @@
     useGlobalPkgs = true;
   
     users.root = { config, pkgs, lib, ... }: {
+      home.stateVersion = "22.11";
+
       home.activation = {
         userscripts = lib.hm.dag.entryAfter ["writeBoundary"] ''
           $DRY_RUN_CMD /home/kciredor/ops/nixos/config/nixos/scripts/root/borgssh.sh $VERBOSE_ARG
@@ -16,6 +18,8 @@
     };
   
     users.kciredor = { config, pkgs, lib, ... }: {
+      home.stateVersion = "22.11";
+
       home.packages = with pkgs; [
         (nerdfonts.override { fonts = [ "FiraMono" ]; })  # Includes powerline and fontawesome. Required by Starship, i3status-rust, vim-lualine and vim-bufferline.
   
@@ -474,7 +478,7 @@
             lualine-nvim
             bufferline-nvim
             { plugin = nvim-web-devicons; optional = true; }  # Required by lualine, bufferline and nvim-tree.
-            (vimPluginGit "master" "kyazdani42/nvim-tree.lua")  # XXX: Package nvim-tree-lua currently does not provide all current setup settings.
+            nvim-tree-lua
             fzfWrapper
             fzf-vim
             (vimPluginGit "master" "bfredl/nvim-miniyank")

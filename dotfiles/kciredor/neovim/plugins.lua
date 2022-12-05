@@ -23,7 +23,8 @@ require("nvim-tree").setup({
 
 -- treesitter
 require'nvim-treesitter.configs'.setup({
+  -- XXX: Highlighting is currently broken.
   highlight = {
-    enable = true,
+    enable = false,
   },
 })

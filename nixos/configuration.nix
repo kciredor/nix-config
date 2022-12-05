@@ -11,7 +11,7 @@ let
 
 in {
   # Initial version.
-  system.stateVersion = "21.11";
+  system.stateVersion = "22.11";
 
   # Imports.
   imports = [
@@ -101,14 +101,7 @@ in {
       allowedUDPPorts = lib.mkForce [];
 
       # Allow wireguard traffic through rpfilter.
-      extraCommands = ''
-        ip46tables -t raw -I nixos-fw-rpfilter -p udp -m udp --sport 51820 -j RETURN
-        ip46tables -t raw -I nixos-fw-rpfilter -p udp -m udp --dport 51820 -j RETURN
-      '';
-      extraStopCommands = ''
-        ip46tables -t raw -D nixos-fw-rpfilter -p udp -m udp --sport 51820 -j RETURN || true
-        ip46tables -t raw -D nixos-fw-rpfilter -p udp -m udp --dport 51820 -j RETURN || true
-      '';
+      checkReversePath = "loose";
     };
   };
 
@@ -184,7 +177,9 @@ in {
 
   # Store maintenance.
   nix = {
-    autoOptimiseStore = true;
+    settings = {
+      auto-optimise-store = true;
+    };
 
     gc = {
       automatic = true;
@@ -205,7 +200,6 @@ in {
 
     # StarBook related, recommended Intel Iris settings by NixOS. Needs picom as well to prevent tearing (configured by home-manager).
     videoDrivers = [ "modesetting" ];
-    useGlamor = true;
 
     layout = "dvorak";
     xkbOptions = "eurosign:e, caps:swapescape";
