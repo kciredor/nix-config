@@ -26,6 +26,7 @@
         exa
         bat
         binutils-unwrapped  # Required by gdb-gef.
+        file  # Required by gdb-gef.
         unzip
         unrar
         urlscan  # Required by neomutt.
