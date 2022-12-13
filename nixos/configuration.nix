@@ -2,9 +2,6 @@
 # kciredor's NixOS configuration. #
 ###################################
 
-# TODO
-# - Split up configuration.nix, perhaps add a secrets.nix (see: https://github.com/balsoft/nixos-config) -> prep for Linux / macOS split usage: https://nixos.wiki/wiki/Extend_NixOS#Conditional_Implementation.
-
 { config, pkgs, lib, ... }:
 
 let

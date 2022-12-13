@@ -63,7 +63,7 @@
         scrot
         feh
         i3lock-color
-        yubioath-desktop
+        unstable.yubioath-flutter
         cider
         unstable.standardnotes
         unstable.ferdium
