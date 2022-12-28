@@ -12,7 +12,7 @@
 
       home.activation = {
         userscripts = lib.hm.dag.entryAfter ["writeBoundary"] ''
-          $DRY_RUN_CMD /home/kciredor/ops/nixos/config/nixos/scripts/root/borgssh.sh $VERBOSE_ARG
+          $DRY_RUN_CMD /home/kciredor/ops/nix-config/scripts/root/borgssh.sh $VERBOSE_ARG
         '';
       };
     };
@@ -80,9 +80,9 @@
       # User scripts are activated by `nixos-rebuild boot` upon reboot covering nixos-install and during `nixos-rebuild switch`.
       home.activation = {
         userscripts = lib.hm.dag.entryAfter ["writeBoundary"] ''
-          $DRY_RUN_CMD $HOME/ops/nixos/config/nixos/scripts/kciredor/yubikey.sh $VERBOSE_ARG
-          $DRY_RUN_CMD $HOME/ops/nixos/config/nixos/scripts/kciredor/symlinks.sh $VERBOSE_ARG
-          $DRY_RUN_CMD $HOME/ops/nixos/config/nixos/scripts/kciredor/initapps.sh $VERBOSE_ARG
+          $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/yubikey.sh $VERBOSE_ARG
+          $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/symlinks.sh $VERBOSE_ARG
+          $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/initapps.sh $VERBOSE_ARG
         '';
       };
   
@@ -201,7 +201,7 @@
   
       # Shared by all shells.
       home.shellAliases = {
-        vinix   = "vim ~/ops/nixos/config/nixos/configuration.nix ~/ops/nixos/config/nixos/home.nix";
+        vinix   = "vim ~/ops/nix-config/nixos/configuration.nix ~/ops/nix-config/nixos/home.nix";
         rebuild = "sudo nix-channel --update && sudo nixos-rebuild switch";
   
         ls      = "exa -g";
@@ -266,7 +266,7 @@
       home.file.".gdbinit".text = ''
         set auto-load safe-path /nix/store
   
-        source ~/ops/nixos/config/nixos/includes/kciredor/gef.py
+        source ~/ops/nix-config/includes/kciredor/gef.py
       '';
   
       programs.starship = {
@@ -363,7 +363,7 @@
         mutableTrust = false;
         publicKeys = [
           {
-            source = ./includes/kciredor/gpg_pubkey;
+            source = ../../home/kciredor/ops/nix-config/includes/kciredor/gpg_pubkey;
             trust = 5;
           }
         ];
@@ -382,7 +382,7 @@
         serverAliveInterval = 120;
   
         includes = [
-          "${config.home.homeDirectory}/ops/nixos/config/nixos/secrets/kciredor/ssh_hosts"
+          "${config.home.homeDirectory}/ops/nix-config/secrets/kciredor/ssh_hosts"
         ];
       };
   
@@ -439,13 +439,13 @@
   
         # Added ../../ prefix to paths for initial nixos-install compatibility.
         extraConfig = builtins.concatStringsSep "\n" [
-          (lib.strings.fileContents ../../home/kciredor/ops/nixos/config/dotfiles/kciredor/neovim/base.vim)
-          (lib.strings.fileContents ../../home/kciredor/ops/nixos/config/dotfiles/kciredor/neovim/plugins.vim)
+          (lib.strings.fileContents ../../home/kciredor/ops/nix-config/dotfiles/kciredor/neovim/base.vim)
+          (lib.strings.fileContents ../../home/kciredor/ops/nix-config/dotfiles/kciredor/neovim/plugins.vim)
   
           ''
             lua << EOF
-            ${lib.strings.fileContents ../../home/kciredor/ops/nixos/config/dotfiles/kciredor/neovim/plugins.lua}
-            ${lib.strings.fileContents ../../home/kciredor/ops/nixos/config/dotfiles/kciredor/neovim/lsp.lua}
+            ${lib.strings.fileContents ../../home/kciredor/ops/nix-config/dotfiles/kciredor/neovim/plugins.lua}
+            ${lib.strings.fileContents ../../home/kciredor/ops/nix-config/dotfiles/kciredor/neovim/lsp.lua}
             EOF
           ''
         ];
@@ -512,7 +512,7 @@
             realName = "Roderick Schaefer";
             address = "roderick@wehandle.it";
             userName = "roderick@wehandle.it";
-            passwordCommand = "/home/kciredor/ops/nixos/config/nixos/secrets/kciredor/gmail.sh";
+            passwordCommand = "/home/kciredor/ops/nix-config/secrets/kciredor/gmail.sh";
             signature = {
               showSignature = "append";
               text = ''
@@ -622,9 +622,9 @@
           { action = "<pipe-entry>cat > ~/.cache/neomutt/preview.html && xdg-open ~/.cache/neomutt/preview.html<enter>"; key = "H"; map = [ "attach" ]; }
         ];
         extraConfig = builtins.concatStringsSep "\n" [
-          (lib.strings.fileContents ../../home/kciredor/ops/nixos/config/dotfiles/kciredor/neomutt/init.muttrc)
-          (lib.strings.fileContents ../../home/kciredor/ops/nixos/config/dotfiles/kciredor/neomutt/gmail.muttrc)
-          (lib.strings.fileContents ../../home/kciredor/ops/nixos/config/dotfiles/kciredor/neomutt/monokai.muttrc)
+          (lib.strings.fileContents ../../home/kciredor/ops/nix-config/dotfiles/kciredor/neomutt/init.muttrc)
+          (lib.strings.fileContents ../../home/kciredor/ops/nix-config/dotfiles/kciredor/neomutt/gmail.muttrc)
+          (lib.strings.fileContents ../../home/kciredor/ops/nix-config/dotfiles/kciredor/neomutt/monokai.muttrc)
         ];
       };
   
@@ -632,6 +632,7 @@
   
       programs.mbsync = {
         enable = true;
+        package = pkgs.unstable.isync;  # XXX: Until stable includes an SSL fix. See: https://github.com/NixOS/nixpkgs/pull/203227.
         extraConfig = ''
           Create Both
           Expunge Both
@@ -657,7 +658,10 @@
       services.picom = {
         enable = true;
         vSync = true;
-        inactiveDim = "0.2";
+
+        settings = {
+          inactive-dim = 0.2;
+        };
       };
   
       # Media buttons daemon.

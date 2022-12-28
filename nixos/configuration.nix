@@ -37,7 +37,7 @@ in {
   };
 
   # Kernel.
-  # boot.kernelPackages = pkgs.linuxPackages_latest;  # Not using latest because of incompatibility with VMware host currently.
+  boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.extraModprobeConfig = ''
     options hid_apple fnmode=0
   '';
@@ -105,7 +105,7 @@ in {
   # VPN.
   environment.etc = {
     "NetworkManager/system-connections/vpn.nmconnection" = {
-      source = "/etc/nixos/secrets/kciredor/vpn.nmconnection";
+      source = "/home/kciredor/ops/nix-config/secrets/kciredor/vpn.nmconnection";
       mode = "0600";
     };
   };
@@ -187,7 +187,7 @@ in {
 
   # Boot scripts.
   systemd.services.nix-sources = {
-    script = lib.strings.fileContents ./scripts/nix-sources.sh;
+    script = lib.strings.fileContents ../../home/kciredor/ops/nix-config/scripts/root/nix-sources.sh;
     wantedBy = [ "network-online.target" ];
   };
 
@@ -303,13 +303,13 @@ in {
         "/home/kciredor/tmp"
         "/home/kciredor/vm"
       ];
-      repo = lib.strings.fileContents ./secrets/kciredor/borgbase_repo.url;
+      repo = lib.strings.fileContents ../../home/kciredor/ops/nix-config/secrets/kciredor/borgbase_repo.url;
       encryption = {
         mode = "repokey-blake2";
-        passCommand = "/home/kciredor/ops/nixos/config/nixos/secrets/kciredor/borgbase_passphrase.sh";
+        passCommand = "/home/kciredor/ops/nix-config/secrets/kciredor/borgbase_passphrase.sh";
       };
       environment = {
-        BORG_RSH = "ssh -i /home/kciredor/ops/nixos/config/nixos/secrets/kciredor/borgbase_ssh";
+        BORG_RSH = "ssh -i /home/kciredor/ops/nix-config/secrets/kciredor/borgbase_ssh";
       };
       compression = "auto,lzma";
       startAt = [ "daily" ];
@@ -339,7 +339,7 @@ in {
 
       # Workaround for passwordFile during both initial install and rebuilds while having /etc/nixos symlinked.
       # See: https://github.com/NixOS/nixpkgs/issues/148044.
-      hashedPassword = lib.strings.fileContents ./secrets/kciredor/passwd_hash;
+      hashedPassword = lib.strings.fileContents ../../home/kciredor/ops/nix-config/secrets/kciredor/passwd_hash;
     };
   };
 

@@ -48,26 +48,26 @@ set +x
 echo -ne "\n** Fetching NixOS configuration **\n\n"
 set -x
 nix-env -iA nixos.git
-mkdir -p /mnt/home/kciredor/ops/nixos
-cd /mnt/home/kciredor/ops/nixos
-git clone --recursive https://github.com/kciredor/nixos-config.git config
-cd config
+mkdir -p /mnt/home/kciredor/ops
+cd /mnt/home/kciredor/ops
+git clone --recursive https://github.com/kciredor/nix-config.git
+cd nix-config
 git remote rm origin
-git remote add origin git@github.com:kciredor/nixos-config.git
+git remote add origin git@github.com:kciredor/nix-config.git
 set +x
 
 echo -ne "\n** Applying NixOS configuration **\n\n"
 set -x
 nixos-generate-config --root /mnt
-mv /mnt/etc/nixos/hardware-configuration.nix /mnt/home/kciredor/ops/nixos/config/nixos/
+mv /mnt/etc/nixos/hardware-configuration.nix /mnt/home/kciredor/ops/nix-config/nixos/
 rm -rf /mnt/etc/nixos
-ln -s /mnt/home/kciredor/ops/nixos/config/nixos /mnt/etc/nixos
-/mnt/home/kciredor/ops/nixos/config/nixos/scripts/nix-sources.sh
-mkdir /mnt/home/kciredor/ops/nixos/config/nixos/secrets/kciredor
-cp -R /mnt/home/kciredor/ops/nixos/config/nixos/secrets/exampleuser/* /mnt/home/kciredor/ops/nixos/config/nixos/secrets/kciredor/
+ln -s /mnt/home/kciredor/ops/nix-config/nixos /mnt/etc/nixos
+/mnt/home/kciredor/ops/nix-config/scripts/root/nix-sources.sh
+mkdir /mnt/home/kciredor/ops/nix-config/secrets/kciredor
+cp -R /mnt/home/kciredor/ops/nix-config/secrets/exampleuser/* /mnt/home/kciredor/ops/nix-config/secrets/kciredor/
 echo "Enter new password for user kciredor"
-mkpasswd -m sha-512 | tr -d '\n' > /mnt/home/kciredor/ops/nixos/config/nixos/secrets/kciredor/passwd_hash
-chmod 600 /mnt/home/kciredor/ops/nixos/config/nixos/secrets/kciredor/passwd_hash
+mkpasswd -m sha-512 | tr -d '\n' > /mnt/home/kciredor/ops/nix-config/secrets/kciredor/passwd_hash
+chmod 600 /mnt/home/kciredor/ops/nix-config/secrets/kciredor/passwd_hash
 nixos-install --no-root-passwd
 set +x
 
@@ -76,7 +76,7 @@ set -x
 chown -R 1000:100 /mnt/home/kciredor/ops
 chmod -R o-rwx /mnt/home/kciredor/ops
 rm -f /mnt/etc/nixos
-ln -s /home/kciredor/ops/nixos/config/nixos /mnt/etc/nixos
+ln -s /home/kciredor/ops/nix-config/nixos /mnt/etc/nixos
 set +x
 
 echo -ne "\n** DONE: PRESS ENTER TO REBOOT **\n\n"
