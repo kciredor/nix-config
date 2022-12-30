@@ -782,6 +782,10 @@
   
         settings = {
           font.size = 10;
+
+          window = {
+            opacity = 0.9;
+          };
   
           key_bindings = [
             { key = "Return"; mods = "Command|Shift"; action = "SpawnNewInstance"; }
