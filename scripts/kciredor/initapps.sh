@@ -5,6 +5,6 @@ set -e
 echo "[Activation script] scripts/kciredor/initapps.sh"
 
 # Rust toolchain.
-if [[ `rustup default | grep 'no default'`  ]]; then
+if [[ `rustup default 2>&1 | grep 'no default'`  ]]; then
     rustup default stable
 fi

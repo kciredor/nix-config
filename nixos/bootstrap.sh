@@ -68,6 +68,7 @@ cp -R /mnt/home/kciredor/ops/nix-config/secrets/exampleuser/* /mnt/home/kciredor
 echo "Enter new password for user kciredor"
 mkpasswd -m sha-512 | tr -d '\n' > /mnt/home/kciredor/ops/nix-config/secrets/kciredor/passwd_hash
 chmod 600 /mnt/home/kciredor/ops/nix-config/secrets/kciredor/passwd_hash
+ln -s /mnt/home/kciredor /home/kciredor
 nixos-install --no-root-passwd
 set +x
 

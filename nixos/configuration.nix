@@ -140,13 +140,6 @@ in {
     };
 
     systemPackages = with pkgs; [
-      vim
-      curl
-      htop
-      ripgrep
-      gdb
-      gcc
-
       pulseaudio  # Required by volume buttons bound in i3.
       pavucontrol  # Required by i3status icon.
       arandr
@@ -187,7 +180,7 @@ in {
 
   # Boot scripts.
   systemd.services.nix-sources = {
-    script = lib.strings.fileContents ../../home/kciredor/ops/nix-config/scripts/root/nix-sources.sh;
+    script = lib.strings.fileContents /home/kciredor/ops/nix-config/scripts/root/nix-sources.sh;
     wantedBy = [ "network-online.target" ];
   };
 
@@ -303,7 +296,7 @@ in {
         "/home/kciredor/tmp"
         "/home/kciredor/vm"
       ];
-      repo = lib.strings.fileContents ../../home/kciredor/ops/nix-config/secrets/kciredor/borgbase_repo.url;
+      repo = lib.strings.fileContents /home/kciredor/ops/nix-config/secrets/kciredor/borgbase_repo.url;
       encryption = {
         mode = "repokey-blake2";
         passCommand = "/home/kciredor/ops/nix-config/secrets/kciredor/borgbase_passphrase.sh";
@@ -334,12 +327,12 @@ in {
     users.kciredor = {
       uid = 1000;
       isNormalUser = true;
-      extraGroups = [ "wheel" "networkmanager" "docker" "libvirtd" "vboxusers" ];
+      extraGroups = [ "wheel" "networkmanager" "docker" "libvirtd" ];
       shell = pkgs.fish;
 
       # Workaround for passwordFile during both initial install and rebuilds while having /etc/nixos symlinked.
       # See: https://github.com/NixOS/nixpkgs/issues/148044.
-      hashedPassword = lib.strings.fileContents ../../home/kciredor/ops/nix-config/secrets/kciredor/passwd_hash;
+      hashedPassword = lib.strings.fileContents /home/kciredor/ops/nix-config/secrets/kciredor/passwd_hash;
     };
   };
 

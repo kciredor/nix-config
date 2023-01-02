@@ -13,11 +13,13 @@ echo "[Activation script] scripts/kciredor/symlinks.sh"
 # Binary Ninja.
 [[ -e $HOME/.binaryninja ]] || ln -s $HOME/ops/nix-config/dotfiles/kciredor/binaryninja $HOME/.binaryninja
 
-# Ghidra.
-export GHIDRA_DOTDIR=$HOME/.ghidra/.$(grep -Eo "ghidra_.*zip" /etc/nixos/configuration.nix | rev | cut -d _ -f2- | rev)
-mkdir -p $GHIDRA_DOTDIR
+# Ghidra (NixOS specific).
+if [[ -e "/etc/nixos" ]]; then
+    export GHIDRA_DOTDIR=$HOME/.ghidra/.$(grep -Eo "ghidra_.*zip" /etc/nixos/configuration.nix | rev | cut -d _ -f2- | rev)
+    mkdir -p $GHIDRA_DOTDIR
 
-[[ -L $GHIDRA_DOTDIR/preferences ]] || (rm -f $GHIDRA_DOTDIR/preferences && ln -s $HOME/ops/nix-config/dotfiles/kciredor/ghidra/preferences $GHIDRA_DOTDIR/preferences)
+    [[ -L $GHIDRA_DOTDIR/preferences ]] || (rm -f $GHIDRA_DOTDIR/preferences && ln -s $HOME/ops/nix-config/dotfiles/kciredor/ghidra/preferences $GHIDRA_DOTDIR/preferences)
+fi
 
 # Unversioned dotfiles.
 for SOURCE in $HOME/ops/nix-config/dotfiles/kciredor/_unversioned/*; do
