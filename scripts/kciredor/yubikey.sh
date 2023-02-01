@@ -15,7 +15,7 @@ fi
 
 if [ $SHOULDCREATE == 1 ]; then
   # This is tricky during boot. May or may not work.
-  gpg-connect-agent "scd serialno" "learn --force" /bye || echo "* Yubikey not found *"
+  /etc/profiles/per-user/kciredor/bin/gpg-connect-agent "scd serialno" "learn --force" /bye || echo "* Yubikey not found *"
 
   # Cleans up gpg-agent spawned during boot which is running as a daemon vs supervised later in the process.
   kill $(pgrep -f 'gpg-agent.*daemon') 2>/dev/null || true

@@ -35,6 +35,8 @@
         cider
         chromium
 
+        azure-cli  # XXX: nixpkgs azure-cli is broken currently on MacOS. Merge this one and macos/configuration.nix homebrew azure-cli back into shared/home.nix nixpkgs.
+
         unstable.standardnotes
         unstable.ferdium
         unstable.webex

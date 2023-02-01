@@ -1,7 +1,8 @@
 {
 	"analysis.database.suppressReanalysis" : true,
+	"analysis.outlining.builtins" : true,
 	"corePlugins.debugger" : true,
-	"python.binaryOverride" : "/usr/bin/python",
+	"python.binaryOverride" : "/usr/local/bin/python3",
 	"rendering.hlil.scopingStyle" : "braces",
 	"ui.featureMap.location" : "top",
 	"ui.pluginManager.warnCommunityInstall" : false,

@@ -37,8 +37,8 @@
         kubernetes-helm
         k9s
         terraform
-        awscli
-        azure-cli
+        awscli2
+
         dnsutils
         inetutils
         jq
@@ -154,8 +154,24 @@
             format = "[$symbol$context( \($namespace\))]($style) ";
           };
 
-          aws.disabled = true;
-          gcloud.disabled = true;
+          aws = {
+            disabled = false;
+            style = "blue";
+            symbol = "☁️ ";
+            format = "[$symbol $region]($style) ";
+          };
+          azure = {
+            disabled = false;
+            style = "blue";
+            symbol = "☁️ ";
+            format = "[$symbol $subscription]($style) ";
+          };
+          gcloud = {
+            disabled = false;
+            style = "blue";
+            symbol = "☁️ ";
+            format = "[$symbol $project]($style) ";
+          };
         };
       };
 
@@ -169,7 +185,6 @@
         escapeTime = 0;
         keyMode = "vi";
         terminal = "screen-256color";
-        tmuxp.enable = true;
           
         extraConfig = ''
           setw -g monitor-activity on
@@ -260,6 +275,10 @@
         includes = [
           {
             contents = {
+              init = {
+                defaultBranch = "master";
+              };
+
               branch = {
                 autosetuprebase = "always";
               };
@@ -367,10 +386,6 @@
           window = {
             opacity = 0.9;
           };
-
-          key_bindings = [
-            { key = "Return"; mods = "Command|Shift"; action = "SpawnNewInstance"; }
-          ];
 
           env = {
             # Required by multi monitor setup with different DPI.

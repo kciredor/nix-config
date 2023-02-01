@@ -12,6 +12,8 @@
       # Enables TouchID for sudo approvals. See: https://github.com/LnL7/nix-darwin/pull/228.
       home.activation = {
         userscripts = lib.hm.dag.entryAfter ["writeBoundary"] ''
+          $DRY_RUN_CMD /Users/kciredor/ops/nix-config/scripts/root/macos.sh $VERBOSE_ARG
+
           $DRY_RUN_CMD grep -q 'pam_tid.so' /etc/pam.d/sudo || ${pkgs.gnused}/bin/sed -i '2i\
           auth       sufficient     pam_tid.so
           ' /etc/pam.d/sudo
@@ -30,10 +32,10 @@
       ];
 
       home.shellAliases = {
-        vinix   = "vim ~/ops/nix-config/macos/configuration.nix ~/ops/nix-config/shared/home.nix ~/ops/nix-config/macos/home.nix";
+        vinix   = "vim ~/ops/nix-config/macos/configuration.nix ~/ops/nix-config/shared/home.nix ~/ops/nix-config/macos/home.nix ~/ops/nix-config/dotfiles/kciredor/hammerspoon/init.lua";
         rebuild = "nix-channel --update && darwin-rebuild switch";
 
-        # TODO: 'clip'.
+        clip    = "pbcopy";
       };
 
       programs.fish.shellInit = ''
@@ -46,6 +48,9 @@
 
       programs.alacritty = {
         settings = {
+          font.size = lib.mkForce 12;
+          font.normal.family = "Hack Nerd Font";
+
           shell = {
             program = "${pkgs.tmux}/bin/tmux";
             args = [
@@ -54,12 +59,25 @@
               "kciredor"
             ];
           };
+
+          window = {
+            startup_mode = "SimpleFullscreen";
+            padding.x = 1;
+
+            dimensions = {
+              columns = 200;
+              lines = 80;
+            };
+          };
+
           env = {
             # Tmux plugins cannot find tmux without this during startup.
             PATH = "/etc/profiles/per-user/kciredor/bin";
           };
 
-          window.padding.x = 1;
+          key_bindings = [
+            { key = "F"; mods = "Shift|Option"; action = "ToggleSimpleFullscreen"; }
+          ];
         };
       };
 
