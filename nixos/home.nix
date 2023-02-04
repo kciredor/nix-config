@@ -4,7 +4,6 @@
 
     /home/kciredor/ops/nix-config/shared/home.nix
     /home/kciredor/ops/nix-config/nixos/desktop.nix
-    /home/kciredor/ops/nix-config/nixos/mail.nix
   ];
 
   home-manager = {
@@ -51,7 +50,7 @@
   
       # Shared by all shells.
       home.shellAliases = {
-        vinix   = "vim ~/ops/nix-config/nixos/configuration.nix ~/ops/nix-config/shared/home.nix ~/ops/nix-config/nixos/home.nix ~/ops/nix-config/nixos/desktop.nix ~/ops/nix-config/nixos/mail.nix";
+        vinix   = "vim ~/ops/nix-config/nixos/configuration.nix ~/ops/nix-config/shared/home.nix ~/ops/nix-config/nixos/home.nix ~/ops/nix-config/nixos/desktop.nix";
         rebuild = "sudo nix-channel --update && sudo nixos-rebuild switch";
   
         clip = "xsel -b";

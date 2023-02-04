@@ -16,6 +16,7 @@
         gawk
         gzip
         gnumake
+        watch
 
         curl
         wget
@@ -29,7 +30,7 @@
         file  # Required by gdb-gef.
         bintools-unwrapped  # Required by gdb-gef.
         unzip
-        unrar
+        rar
         urlscan  # Required by neomutt.
 
         kubectl
@@ -37,7 +38,10 @@
         kubernetes-helm
         k9s
         terraform
+        ansible
+        sops
         awscli2
+        doctl
 
         dnsutils
         inetutils
@@ -65,6 +69,7 @@
           $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/yubikey.sh $VERBOSE_ARG
           $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/symlinks.sh $VERBOSE_ARG
           $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/initapps.sh $VERBOSE_ARG
+          $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/mailsync.sh $VERBOSE_ARG
         '';
       };
 
@@ -172,6 +177,12 @@
             symbol = "☁️ ";
             format = "[$symbol $project]($style) ";
           };
+
+          # Required by tmux config to set 'pane_path' variable with current path without dereferencing symlinks.
+          custom.tmux = {
+            command = "printf \"\\033]7;$PWD\\033\\\\\"";
+            when = "true";
+          };
         };
       };
 
@@ -195,6 +206,14 @@
       
           bind-key -T copy-mode-vi v send-keys -X begin-selection
           bind T setw synchronize-panes
+
+          bind-key "|" split-window -h -c "#{pane_path}"
+          bind-key "\\" split-window -fh -c "#{pane_path}"
+          bind-key "-" split-window -v -c "#{pane_path}"
+          bind-key "_" split-window -fv -c "#{pane_path}"
+          bind-key "%" split-window -h -c "#{pane_path}"
+          bind-key '"' split-window -v -c "#{pane_path}"
+          bind-key "c" new-window -c "#{pane_path}"
         '';
         
         plugins = with pkgs.tmuxPlugins; [
@@ -374,7 +393,7 @@
 
       programs.go = {
         enable = true;
-        goPath = "dev/go";
+        goPath = ".go";
       };
 
       programs.alacritty = {

@@ -69,15 +69,18 @@ hs.hotkey.bind(hyper, 'G', function()
   hs.grid.show()
 end)
 
+-- FIXME: Should try filtering on 'region' for mainScreen, spaces do not seem to work, filters in general are borked.
+-- s = hs.window.switcher.new(hs.window.filter.new():setRegions(hs.screen.mainScreen():fromUnitRect'0,0/1,1'))
+s = hs.window.switcher.new(hs.window.filter.new():setCurrentSpace(true):setDefaultFilter{})
 hs.hotkey.bind(hyper, 'T', function()
-  -- FIXME: Does not actually filter on current space with multiple monitors.
-  filter = hs.window.filter.new():setCurrentSpace(true)
-  hs.window.switcher.new(filter):nextWindow()
+  s:next()
 end)
+
 hs.hotkey.bind(hyper, 'O', function()
   local win = hs.window.focusedWindow()
   win:moveToScreen(win:screen():next(), true)
 end)
+
 hs.hotkey.bind(hyper, 'F', function()
   local win = hs.window.focusedWindow()
   win:maximize()

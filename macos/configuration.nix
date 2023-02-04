@@ -1,11 +1,3 @@
-# FIXME
-# - Resolve Hammerspoon multi-monitor/screen issues.
-# - Resolve Little Snitch nix binaries hash match changes after rebuilds -> back to Mac default firewall but enable Handoff / Airplay / Wireguard?
-# TODO
-# - Maildir from Linux to MacOS.
-# - Use Dropbox to sync non-secret data between MacOS and Linux.
-
-
 ###################################
 # kciredor's MacOS configuration. #
 ###################################
@@ -25,7 +17,11 @@
   system = {
     defaults = {
       SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
-      alf.globalstate = 0;  # Disables built-in firewall and lets Little Snitch take control.
+      alf = {
+        globalstate = 1;
+        allowsignedenabled = 0;
+        allowdownloadsignedenabled = 0;
+      };
       loginwindow.GuestEnabled = false;
 
       NSGlobalDomain = {
@@ -48,8 +44,6 @@
         mineffect = "scale";
         mru-spaces = false;
         static-only = true;
-
-        # TODO: Magnification and others via custom shell commands or CustomSystem/UserPreferences.
       };
 
       finder = {
@@ -140,9 +134,8 @@
       "hammerspoon"
       "1password"
       "yubico-authenticator"
-      "little-snitch"
 
-      # "logitech-g-hub"  # XXX: Installs and works but errors out about permissions (SIP related trying to chown).
+      "logitech-g-hub"
 
       "brave-browser"
       "dropbox"
@@ -151,6 +144,7 @@
       "ferdium"
 
       "docker"
+      "vmware-fusion"
       "google-cloud-sdk"  # NOTE: GKE needs `gcloud components install gke-gcloud-auth-plugin`.
 
       "ghidra"
@@ -162,11 +156,14 @@
       "slack"
       "microsoft-office"
       "microsoft-teams"
+      "zoom"
 
       # Logius.
       "webex"
       "citrix-workspace"
+      "vmware-horizon-client"
       "displaylink"
+      "openvpn-connect"
     ];
 
     # Mac AppStore apps will not be automatically uninstalled when removed from the list.
@@ -174,8 +171,6 @@
       WireGuard = 1451685025;
       OnePassword-Browser = 1569813296;
       Logic-Pro = 634148309;
-
-      # TODO: KeepingYouAwake via HammerSpoon plugin?
     };
   };
 }

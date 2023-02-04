@@ -3,6 +3,7 @@
     <home-manager/nix-darwin>
 
     ../shared/home.nix
+    ./mail.nix
   ];
 
   home-manager = {
@@ -32,7 +33,7 @@
       ];
 
       home.shellAliases = {
-        vinix   = "vim ~/ops/nix-config/macos/configuration.nix ~/ops/nix-config/shared/home.nix ~/ops/nix-config/macos/home.nix ~/ops/nix-config/dotfiles/kciredor/hammerspoon/init.lua";
+        vinix   = "vim ~/ops/nix-config/macos/configuration.nix ~/ops/nix-config/shared/home.nix ~/ops/nix-config/macos/home.nix ~/ops/nix-config/macos/mail.nix ~/ops/nix-config/dotfiles/kciredor/hammerspoon/init.lua";
         rebuild = "nix-channel --update && darwin-rebuild switch";
 
         clip    = "pbcopy";

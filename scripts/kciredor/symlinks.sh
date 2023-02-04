@@ -19,7 +19,7 @@ fi
 # Ghidra.
 if [[ -e "/etc/nixos" ]]; then
   # NixOS.
-  GHIDRA_DOTDIR=$HOME/.ghidra/.$(grep -Eo "ghidra_.*zip" /etc/nixos/configuration.nix | rev | cut -d _ -f2- | rev)
+  GHIDRA_DOTDIR=$HOME/.ghidra/.$(grep -Eo "ghidra_.*zip" /etc/nixos/configuration.nix | /run/current-system/sw/bin/rev | cut -d _ -f2- | /run/current-system/sw/bin/rev)
 fi
 if [[ "$(uname)" == "Darwin" ]]; then
   # MacOS.

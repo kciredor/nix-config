@@ -3,9 +3,13 @@
 {
   home-manager = {
     users.kciredor = { pkgs, lib, ... }: {
+      home.packages = with pkgs; [
+        html2text
+      ];
+
       accounts.email = {
         maildirBasePath = ".maildir";
-  
+
         accounts = {
           gmail = {
             primary = true;
@@ -13,7 +17,7 @@
             realName = "Roderick Schaefer";
             address = "roderick@wehandle.it";
             userName = "roderick@wehandle.it";
-            passwordCommand = "/home/kciredor/ops/nix-config/secrets/kciredor/gmail.sh";
+            passwordCommand = "$HOME/ops/nix-config/secrets/kciredor/gmail.sh";
             signature = {
               showSignature = "append";
               text = ''
@@ -86,18 +90,9 @@
             notmuch = {
               enable = true;
             };
-            imapnotify = {
-              enable = true;
-              boxes = [ "Inbox" ];
-              extraConfig = {
-                wait = 10;
-              };
-              onNotify = "${pkgs.notmuch}/bin/notmuch new";
-              onNotifyPost = "${pkgs.libnotify}/bin/notify-send 'Mail synced'";
-            };
             neomutt = {
               enable = true;
-              extraMailboxes = [ "Archive" "Sent" "Flagged" "Drafts" "Spam" "Trash" "Kindle" "Later" ];
+              extraMailboxes = [ "Archive" "Sent" "Flagged" "Drafts" "Spam" "Trash" ];
             };
           };
         };
@@ -120,7 +115,7 @@
           { action = "<shell-escape>notmuch new<enter>"; key = "o"; map = [ "index" ]; }
           { action = "<vfolder-from-query>";             key = "\\\\"; map = [ "index" ]; }
           { action = "<pipe-entry>urlscan<enter>";       key = "U"; map = [ "pager" ]; }
-          { action = "<pipe-entry>cat > ~/.cache/neomutt/preview.html && xdg-open ~/.cache/neomutt/preview.html<enter>"; key = "H"; map = [ "attach" ]; }
+          { action = "<pipe-entry>cat > ~/.cache/neomutt/preview.html && open ~/.cache/neomutt/preview.html<enter>"; key = "H"; map = [ "attach" ]; }
         ];
         extraConfig = builtins.concatStringsSep "\n" [
           (lib.strings.fileContents "${config.users.users.kciredor.home}/ops/nix-config/dotfiles/kciredor/neomutt/init.muttrc")
@@ -128,12 +123,19 @@
           (lib.strings.fileContents "${config.users.users.kciredor.home}/ops/nix-config/dotfiles/kciredor/neomutt/monokai.muttrc")
         ];
       };
+
+      home.file.".mailcap".text = ''
+        text/html; html2text %s | less
+        application/pdf; open %s
+        image/*; open %s
+        audio/*; open %s
+        video/*; open %s
+      '';
   
       programs.msmtp.enable = true;
   
       programs.mbsync = {
         enable = true;
-        package = pkgs.unstable.isync;  # XXX: Until stable includes an SSL fix. See: https://github.com/NixOS/nixpkgs/pull/203227.
         extraConfig = ''
           Create Both
           Expunge Both
@@ -141,13 +143,35 @@
         '';
       };
   
-      services.imapnotify.enable = true;
-  
       programs.notmuch = {
         enable = true;
         new.tags = [];
         hooks.preNew = "mbsync gmail";
       };
+
+      # Interval sync because imapnotify on macOS has no service support and on macOS mbsync is slow.
+      home.file."Library/LaunchAgents/com.notmuch.plist".text = ''
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>Label</key>
+            <string>com.notmuch</string>
+            <key>ProgramArguments</key>
+            <array>
+                <string>/etc/profiles/per-user/kciredor/bin/notmuch</string>
+                <string>new</string>
+            </array>
+            <key>StartInterval</key>
+            <integer>900</integer>
+            <key>EnvironmentVariables</key>
+            <dict>
+                <key>PATH</key>
+                <string>/etc/profiles/per-user/kciredor/bin</string>
+            </dict>
+        </dict>
+        </plist>
+      '';
     };
   };
 }
