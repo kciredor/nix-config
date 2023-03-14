@@ -3,55 +3,67 @@
 {
   home-manager = {
     users.kciredor = { pkgs, lib, ... }: {
-      xsession.windowManager.i3 = rec {
+      xsession = {
         enable = true;
+
+        initExtra = "$HOME/.fehbg";
+
+        # initExtra = "xset r rate 170 70";  # XXX: Bluetooth keyboard requires running this again. xplugd?
+        # profileExtra = '';
+        # xresources.properties = {
+        # };
+        # xfconf.settings = {
+        # };
+
+        windowManager.i3 = rec {
+          enable = true;
   
-        config = {
-          modifier = "Mod4";
-          defaultWorkspace = "workspace number 1";
-          terminal = "alacritty";
+          config = {
+            modifier = "Mod4";
+            defaultWorkspace = "workspace number 1";
+            terminal = "alacritty";
   
-          gaps = {
-            inner = 8;
+            gaps = {
+              inner = 8;
+            };
+
+            keybindings = pkgs.lib.mkOptionDefault {
+              "${config.modifier}+Shift+e" = "exec i3-nagbar -t warning -m 'Confirm exit?' -b 'Yes' 'i3-msg exit'";
+              "${config.modifier}+F10" = "exec autorandr -c";
+              "${config.modifier}+F11" = "exec systemctl suspend-then-hibernate";
+              "${config.modifier}+F12" = "exec i3lock-color -i ~/.background-image --ring-color=000000 --keyhl-color ffffff";
+  
+              "${config.modifier}+h" = "exec i3 workspace previous";
+              "${config.modifier}+l" = "exec i3 workspace next";
+              "${config.modifier}+t" = "focus next";
+              "${config.modifier}+o" = "move window to output right";
+              "${config.modifier}+Shift+o" = "move workspace to output right";
+              "${config.modifier}+Shift+t" = "move right";
+            };
+
+            bars = [{
+              position  = "top";
+              fonts.size = 10.0;
+              statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs $HOME/.config/i3status-rust/config-top.toml";
+            }];
           };
   
-          keybindings = pkgs.lib.mkOptionDefault {
-            # In case of a xfce+i3 session: xfce4-session-logout.
-            "${config.modifier}+Shift+e" = "exec i3-nagbar -t warning -m 'Confirm exit?' -b 'Yes' 'i3-msg exit'";
-            "${config.modifier}+F10" = "exec autorandr -c";
-            "${config.modifier}+F11" = "exec systemctl suspend-then-hibernate";
-            "${config.modifier}+F12" = "exec i3lock-color -i ~/.background-image --ring-color=000000 --keyhl-color ffffff";
+          extraConfig = ''
+            # Volume buttons. Alternatively there is sound.mediaKeys.enable.
+            bindsym XF86AudioMute        exec --no-startup-id pactl set-sink-mute   @DEFAULT_SINK@ toggle
+            bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%
+            bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5%
   
-            "${config.modifier}+h" = "exec i3 workspace previous";
-            "${config.modifier}+l" = "exec i3 workspace next";
-            "${config.modifier}+t" = "focus next";
-            "${config.modifier}+o" = "move window to output right";
-            "${config.modifier}+Shift+o" = "move workspace to output right";
-            "${config.modifier}+Shift+t" = "move right";
-          };
-  
-          bars = [{
-            position  = "top";
-            fonts.size = 10.0;
-            statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs $HOME/.config/i3status-rust/config-top.toml";
-          }];
+            # Media buttons.
+            bindsym XF86AudioPlay exec --no-startup-id ${pkgs.playerctl}/bin/playerctl play-pause
+            bindsym XF86AudioNext exec --no-startup-id ${pkgs.playerctl}/bin/playerctl next
+            bindsym XF86AudioPrev exec --no-startup-id ${pkgs.playerctl}/bin/playerctl previous
+
+            # Screenshots.
+            bindsym Print                 exec "scrot -m '%Y%m%d_%H%M%S.png' -e 'mv $f ~/images/screenshots/ ; ${pkgs.libnotify}/bin/notify-send Screenshot $f'"
+            bindsym --release Shift+Print exec "scrot -s '%Y%m%d_%H%M%S.png' -e 'mv $f ~/images/screenshots/ ; ${pkgs.libnotify}/bin/notify-send Screenshot $f'"
+          '';
         };
-  
-        extraConfig = ''
-          # Volume buttons. Alternatively there is sound.mediaKeys.enable.
-          bindsym XF86AudioMute        exec --no-startup-id pactl set-sink-mute   @DEFAULT_SINK@ toggle
-          bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%
-          bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5%
-  
-          # Media buttons.
-          bindsym XF86AudioPlay exec --no-startup-id ${pkgs.playerctl}/bin/playerctl play-pause
-          bindsym XF86AudioNext exec --no-startup-id ${pkgs.playerctl}/bin/playerctl next
-          bindsym XF86AudioPrev exec --no-startup-id ${pkgs.playerctl}/bin/playerctl previous
-  
-          # Screenshots.
-          bindsym Print                 exec "scrot -m '%Y%m%d_%H%M%S.png' -e 'mv $f ~/images/screenshots/ ; ${pkgs.libnotify}/bin/notify-send Screenshot $f'"
-          bindsym --release Shift+Print exec "scrot -s '%Y%m%d_%H%M%S.png' -e 'mv $f ~/images/screenshots/ ; ${pkgs.libnotify}/bin/notify-send Screenshot $f'"
-        '';
       };
   
       programs.i3status-rust = {
@@ -113,7 +125,7 @@
       # StarBook related, this fixes screen tearing with Intel Iris.
       services.picom = {
         enable = true;
-        vSync = true;
+        vSync = true;  # Intel Iris gpu non-tear.
 
         settings = {
           inactive-dim = 0.2;
@@ -235,7 +247,6 @@
           };
         };
       };
-  
     };
   };
 }

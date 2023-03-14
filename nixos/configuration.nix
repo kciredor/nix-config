@@ -37,7 +37,6 @@ in {
   };
 
   # Kernel.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.extraModprobeConfig = ''
     options hid_apple fnmode=0
   '';
@@ -184,57 +183,35 @@ in {
     wantedBy = [ "network-online.target" ];
   };
 
-  # X11.
+  # TODO: How would this work with Arch or Ubuntu? Conditionally tweak with `let isNixOS = lib.version.isNixOS in { programs.zsh == if isNixOS then {}`?
   services.xserver = {
     enable = true;
 
-    # StarBook related, recommended Intel Iris settings by NixOS. Needs picom as well to prevent tearing (configured by home-manager).
-    videoDrivers = [ "modesetting" ];
-
     layout = "dvorak";
     xkbOptions = "eurosign:e, caps:swapescape";
+    autoRepeatDelay = 170;  # -ardelay
+    autoRepeatInterval = 15;  # -arinterval
 
-    # Keyboard repeat rate via seat default. Interval = 1000 / <xset interval>.
-    autoRepeatDelay = 170;
-    autoRepeatInterval = 15;
-
-    libinput = {
-      enable = true;  # Enabled by default by most desktopmanagers.
-      touchpad = {
-        disableWhileTyping = true;
-        naturalScrolling = true;
-      };
+    libinput.touchpad = {
+      disableWhileTyping = true;
+      naturalScrolling = true;
     };
 
-    # XFCE can be used together with i3.
-    desktopManager = {
-      xterm.enable = false;
-      xfce = {
-        enable = true;
-        noDesktop = true;
-        enableXfwm = false;
-      };
+    displayManager = {
+      autoLogin.user = "kciredor";  # LUKS unlock already requires password at boot.
+
+      session = [
+        # Compatible with Home-Manager.
+        {
+          name = "xsession";
+          manage = "window";
+          start = ''
+            ${pkgs.runtimeShell} $HOME/.xsession &
+            waitPID=$!
+          '';
+        }
+      ];
     };
-
-    # i3 is configured by Home Manager.
-    windowManager.i3 = {
-      enable = true;
-      package = pkgs.i3-gaps;
-    };
-
-    displayManager.defaultSession = "none+i3";
-
-    displayManager.sessionCommands = ''
-      # Allows for a second external monitor.
-      ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
-
-      # XFCE should not run ssh-agent on top of gpg-agent.
-      xfconf-query -c xfce4-session -p /startup/ssh-agent/enabled -n -t bool -s false
-
-      # XFCE does not honor settings.xserver.[autoRepeatDelay|autoRepeatInterval].
-      xfconf-query -c keyboards -p /Default/KeyRepeat/Delay -s 170
-      xfconf-query -c keyboards -p /Default/KeyRepeat/Rate -s 70
-    '';
   };
 
   # Brightness buttons.

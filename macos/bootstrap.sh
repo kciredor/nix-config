@@ -2,6 +2,8 @@
 
 set -xe
 
+echo "kciredor's MacOS configuration."
+
 # 0: Setup repo.
 if [[ ! -e /Users/kciredor/ops/nix-config ]]; then
     mkdir -p /Users/kciredor/ops

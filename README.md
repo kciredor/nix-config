@@ -47,3 +47,18 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/kciredor/nix-config/mast
 - Manual installs which are not in Nixpkgs/ Homebrew/ AppStore, like Binary Ninja and BurpSuite.
 - Goobook login with `goobook authenticate`.
 - Etc.
+
+---
+
+# Other Linux
+
+## Install
+Boot from a freshly installed Linux distro of choie.
+
+```bash
+sudo apt -y install curl git  # Or equivalent based on distro's package mananger.
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/kciredor/nix-config/master/ext/bootstrap.sh)"
+```
+
+## Next steps
+- TODO

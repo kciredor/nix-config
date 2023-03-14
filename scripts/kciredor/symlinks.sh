@@ -6,6 +6,7 @@ echo "[Activation script] scripts/kciredor/symlinks.sh"
 
 # Wallpaper.
 [[ -e $HOME/.background-image ]] || ln -s $HOME/ops/nix-config/dotfiles/kciredor/wallpapers/mountains.jpg $HOME/.background-image
+[[ -e $HOME/.fehbg ]] || (ln -s $HOME/ops/nix-config/dotfiles/kciredor/fehbg $HOME/.fehbg && chmod 750 $HOME/.fehbg)
 
 # IDA Pro.
 [[ -e $HOME/.idapro ]] || ln -s $HOME/ops/nix-config/dotfiles/kciredor/idapro $HOME/.idapro
