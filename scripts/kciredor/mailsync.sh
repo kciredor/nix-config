@@ -2,11 +2,14 @@
 
 set -e
 
-echo "[Activation script] scripts/kciredor/mailsync.sh"
+# MacOS is currently my main OS which should sync mail.
+if [[ ! "$(uname)" == "Darwin" ]]; then
+  exit
+fi
 
-if [[ "$(uname)" == "Darwin" ]]; then
-  # MacOS is currently my main OS so it should sync mail.
-  if ! /bin/launchctl list | grep -q com.notmuch; then
-    /bin/launchctl load $HOME/Library/LaunchAgents/com.notmuch.plist
-  fi
+echo "[Activation script] scripts/kciredor/mailsync.sh"
+PATH=/etc/profiles/per-user/kciredor/bin:/home/kciredor/.nix-profile/bin:/bin:/usr/bin:$PATH
+
+if ! launchctl list | grep -q com.notmuch; then
+  launchctl load $HOME/Library/LaunchAgents/com.notmuch.plist
 fi

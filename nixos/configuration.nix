@@ -66,8 +66,8 @@ in {
   # Virtualisation.
   virtualisation.docker = {
     enable = true;
-    # Wireguard MTU is 1420.
-    extraOptions = "--mtu 1392";
+    # Wireguard MTU is 1420 on an Azure VM (1392 works) and 1380 on a GCP vm.
+    extraOptions = "--mtu 1280";
   };
   virtualisation.libvirtd.enable = true;
   virtualisation.vmware.host.enable = true;
@@ -79,10 +79,7 @@ in {
 
     networkmanager = {
       enable = true;
-      dns = "none";
     };
-
-    nameservers = [ "10.7.0.1" "1.1.1.1" "8.8.8.8" ];
 
     interfaces = {
         wlan0 = {
@@ -106,6 +103,11 @@ in {
     "NetworkManager/system-connections/vpn.nmconnection" = {
       source = "/home/kciredor/ops/nix-config/secrets/kciredor/vpn.nmconnection";
       mode = "0600";
+    };
+    # Required by displaylink because otherwise the system freezes, see: https://support.displaylink.com/knowledgebase/articles/1843660-screen-freezes-after-opening-an-application-only.
+    "modprobe.d/evdi.conf" = {
+      text = "options evdi initial_device_count=2";
+      mode = "0640";
     };
   };
 
@@ -152,15 +154,9 @@ in {
       # Pins latest public release.
       version = "10.2";
       src = super.fetchzip {
-        url = "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.2_build/ghidra_10.2_PUBLIC_20221101.zip";
-        sha256 = "sha256-H8SwOfYstzm7bUe2d/zB1ax705/SCQ49ZhACUfPz/zw=";
+        url = "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.2.3_build/ghidra_10.2.3_PUBLIC_20230208.zip";
+        sha256 = "sha256-0uDLS+fnUqLw+oqoR/Vs56vhzNmA54k0WBvhvDmlGKs=";
       };
-      # Adds openjdk17 requirement as of Ghidra 10.2.
-      postFixup = ''
-        mkdir -p "$out/bin"
-        ln -s "$out/lib/ghidra/ghidraRun" "$out/bin/ghidra"
-        wrapProgram "$out/lib/ghidra/support/launch.sh" --prefix PATH : ${lib.makeBinPath [ pkgs.openjdk17 ]}
-      '';
     });
   })];
 
@@ -183,9 +179,11 @@ in {
     wantedBy = [ "network-online.target" ];
   };
 
-  # TODO: How would this work with Arch or Ubuntu? Conditionally tweak with `let isNixOS = lib.version.isNixOS in { programs.zsh == if isNixOS then {}`?
   services.xserver = {
     enable = true;
+
+    # Requires `nix-prefetch-url --name displaylink-561.zip https://www.synaptics.com/sites/default/files/exe_files/2022-08/DisplayLink%20USB%20Graphics%20Software%20for%20Ubuntu5.6.1-EXE.zip`.
+    videoDrivers = [ "displaylink" "modesetting" ];
 
     layout = "dvorak";
     xkbOptions = "eurosign:e, caps:swapescape";
@@ -211,6 +209,11 @@ in {
           '';
         }
       ];
+
+      # Required by displaylink to support more than one external monitor.
+      sessionCommands = ''
+        ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
+      '';
     };
   };
 
@@ -233,6 +236,7 @@ in {
   # Yubikey.
   services.pcscd.enable = true;
   programs.ssh.startAgent = false;
+  programs.ssh.askPassword = "";
 
   # Sound.
   security.rtkit.enable = true;
@@ -265,8 +269,8 @@ in {
         "/home"
       ];
       exclude = [
-        ".cache"
-
+        "/home/kciredor/.cache"
+        "/home/kciredor/.dropbox-hm/.dropbox/logs"
         "/home/kciredor/.config/Ferdi"
 
         "/home/kciredor/down"

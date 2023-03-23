@@ -123,8 +123,6 @@
       "pam-reattach"  # Required by sudo via TouchID.
       "pinentry-mac"
 
-      "azure-cli"  # XXX: nixpkgs azure-cli is broken currently on MacOS. Merge this one and macos/configuration.nix homebrew azure-cli back into shared/home.nix nixpkgs.
-
       "openjdk"  # Required by Ghidra.
       "libzip"  # Required by tsschecker.
     ];
@@ -139,8 +137,6 @@
 
       "brave-browser"
       "dropbox"
-      "standard-notes"
-      "todoist"
       "ferdium"
 
       "docker"

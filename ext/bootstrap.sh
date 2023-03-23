@@ -32,6 +32,4 @@ nix-shell '<home-manager>' -A install
 rm -f $HOME/.config/home-manager/home.nix
 ln -s /home/kciredor/ops/nix-config/ext/home.nix $HOME/.config/home-manager/home.nix
 home-manager switch -b backup
-echo "/home/kciredor/.nix-profile/bin/fish" | sudo tee -a /etc/shells
-chsh -s /home/kciredor/.nix-profile/bin/fish
 echo -ne "\n\n** BOOTSTRAP COMPLETED - Now logout/login or reboot **\n\n"

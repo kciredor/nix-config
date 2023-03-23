@@ -3,6 +3,7 @@
 set -e
 
 echo "[Activation script] scripts/kciredor/symlinks.sh"
+PATH=/etc/profiles/per-user/kciredor/bin:/home/kciredor/.nix-profile/bin:/bin:/usr/bin:$PATH
 
 # Wallpaper.
 [[ -e $HOME/.background-image ]] || ln -s $HOME/ops/nix-config/dotfiles/kciredor/wallpapers/mountains.jpg $HOME/.background-image
@@ -27,11 +28,13 @@ if [[ "$(uname)" == "Darwin" ]]; then
   SCRIPT_FILE="$(readlink -f "/usr/local/bin/ghidraRun" 2>/dev/null || readlink "/usr/local/bin/ghidraRun" 2>/dev/null || echo "$0")"
   GHIDRA_DOTDIR="$HOME/.ghidra/.$(basename ${SCRIPT_FILE%/*})"
 fi
-mkdir -p $GHIDRA_DOTDIR
-[[ -L $GHIDRA_DOTDIR/preferences ]] || (rm -f $GHIDRA_DOTDIR/preferences && ln -s $HOME/ops/nix-config/dotfiles/kciredor/ghidra/preferences $GHIDRA_DOTDIR/preferences)
-[[ -L $HOME/.ghidra//README ]] || ln -s $HOME/ops/nix-config/dotfiles/kciredor/ghidra/README $HOME/.ghidra/README
-if [[ "$(uname)" == "Darwin" && ! -e $HOME/bin/ghidra.sh ]]; then
-  ln -s $HOME/ops/nix-config/dotfiles/kciredor/ghidra/ghidra.sh $HOME/bin/ghidra.sh
+if [[ ! -z $GHIDRA_DOTDIR ]]; then
+  mkdir -p $GHIDRA_DOTDIR
+  [[ -L $GHIDRA_DOTDIR/preferences ]] || (rm -f $GHIDRA_DOTDIR/preferences && ln -s $HOME/ops/nix-config/dotfiles/kciredor/ghidra/preferences $GHIDRA_DOTDIR/preferences)
+  [[ -L $HOME/.ghidra//README ]] || ln -s $HOME/ops/nix-config/dotfiles/kciredor/ghidra/README $HOME/.ghidra/README
+  if [[ "$(uname)" == "Darwin" && ! -e $HOME/bin/ghidra.sh ]]; then
+    ln -s $HOME/ops/nix-config/dotfiles/kciredor/ghidra/ghidra.sh $HOME/bin/ghidra.sh
+  fi
 fi
 
 # Hammerspoon.

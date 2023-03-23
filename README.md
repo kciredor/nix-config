@@ -1,5 +1,5 @@
-kciredor's Nix configuration for NixOS and MacOS
-================================================
+kciredor's Nix configuration for MacOS, NixOS and other Linux distro's.
+=======================================================================
 
 # NixOS
 
@@ -61,4 +61,4 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/kciredor/nix-config/mast
 ```
 
 ## Next steps
-- TODO
+Might require additional manual steps, but mostly identical to NixOS next steps.

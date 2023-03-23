@@ -1,8 +1,6 @@
 {
 	"analysis.database.suppressReanalysis" : true,
-	"analysis.outlining.builtins" : true,
-	"corePlugins.debugger" : true,
-	"python.binaryOverride" : "/usr/local/bin/python3",
+	"python.binaryOverride" : "/etc/profiles/per-user/kciredor/bin/python",
 	"rendering.hlil.scopingStyle" : "braces",
 	"ui.featureMap.location" : "top",
 	"ui.pluginManager.warnCommunityInstall" : false,

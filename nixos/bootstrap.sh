@@ -63,6 +63,7 @@ mv /mnt/etc/nixos/hardware-configuration.nix /mnt/home/kciredor/ops/nix-config/n
 rm -rf /mnt/etc/nixos
 ln -s /mnt/home/kciredor/ops/nix-config/nixos /mnt/etc/nixos
 /mnt/home/kciredor/ops/nix-config/scripts/root/nix-sources.sh
+nix-prefetch-url --name displaylink-561.zip https://www.synaptics.com/sites/default/files/exe_files/2022-08/DisplayLink%20USB%20Graphics%20Software%20for%20Ubuntu5.6.1-EXE.zip
 mkdir /mnt/home/kciredor/ops/nix-config/secrets/kciredor
 cp -R /mnt/home/kciredor/ops/nix-config/secrets/exampleuser/* /mnt/home/kciredor/ops/nix-config/secrets/kciredor/
 echo "Enter new password for user kciredor"

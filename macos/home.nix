@@ -28,7 +28,7 @@
     };
 
     users.kciredor = { config, pkgs, lib, ... }: lib.mkMerge[
-      (import /Users/kciredor/ops/nix-config/shared/home.nix { config = config; pkgs = pkgs; lib = lib; }).kciredor
+      (import /Users/kciredor/ops/nix-config/shared/home.nix { config = config; pkgs = pkgs; lib = lib; }).home
       {
         home.stateVersion = "22.11";
 
@@ -43,10 +43,11 @@
           clip    = "pbcopy";
         };
 
-        programs.fish.shellInit = ''
-          # Overrides Mac shipped coreutils, findutils etc.
-          set -xg PATH "/etc/profiles/per-user/kciredor/bin:$PATH"
+        home.sessionVariables = {
+          PATH = "/etc/profiles/per-user/kciredor/bin:${builtins.getEnv "PATH"}";
+        };
 
+        programs.fish.shellInit = ''
           set -xg SSH_AUTH_SOCK $HOME/.gnupg/S.gpg-agent.ssh
           pgrep gpg-agent >/dev/null || gpg-agent --daemon >/dev/null
         '';
@@ -66,7 +67,7 @@
             };
 
             window = {
-              startup_mode = "SimpleFullscreen";
+              startup_mode = "Maximized";
               padding.x = 1;
 
               dimensions = {

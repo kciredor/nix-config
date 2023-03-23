@@ -4,7 +4,7 @@
 let homeDir = if builtins.pathExists "/Users" then "/Users/kciredor" else "/home/kciredor";
 
 in {
-  kciredor = {
+  home = {
     home.packages = with pkgs; [
       coreutils
       diffutils
@@ -18,6 +18,7 @@ in {
 
       curl
       wget
+      openssl
       vim
       htop
       ripgrep
@@ -34,12 +35,16 @@ in {
       kubectl
       kubectx
       kubernetes-helm
+      minikube
       kind
       k9s
+      stern
+      mosh
       terraform
       ansible
       sops
       awscli2
+      azure-cli
       doctl
 
       dnsutils
@@ -47,10 +52,13 @@ in {
       jq
       yq
       gettext
-      lessc
+      _1password
+
+      gdb
 
       rustup
       (python3.withPackages(ps: with ps; [
+        pip  # Required by Binary Ninja settings.json NixOS+MacOS Python path compatibility.
         goobook
 
         ROPGadget
@@ -62,6 +70,7 @@ in {
         # ropper  # XXX: Marked as broken.
       ]))
       nodejs
+      lessc
     ];
 
     # User scripts are activated by `nixos-rebuild boot` upon reboot covering nixos-install and during `nixos|darwin-rebuild switch`.
@@ -71,6 +80,7 @@ in {
         $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/symlinks.sh $VERBOSE_ARG
         $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/initapps.sh $VERBOSE_ARG
         $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/mailsync.sh $VERBOSE_ARG
+        $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/linux.sh $VERBOSE_ARG
       '';
     };
 
@@ -99,6 +109,12 @@ in {
       gc      = "git commit -v";
       glgg    = "git log --graph";
     };
+
+    home.file.".gdbinit".text = ''
+      set auto-load safe-path /nix/store
+
+      source ~/ops/nix-config/includes/kciredor/gef.py
+    '';
 
     programs.fish = {
       enable = true;
@@ -314,6 +330,10 @@ in {
             mergetool = {
               keepBackup = false;
               prompt = false;
+            };
+
+            credential = {
+              helper = "store";
             };
           };
         }

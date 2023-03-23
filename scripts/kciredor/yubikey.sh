@@ -3,6 +3,7 @@
 set -e
 
 echo "[Activation script] scripts/kciredor/yubikey.sh"
+PATH=/etc/profiles/per-user/kciredor/bin:/home/kciredor/.nix-profile/bin:/bin:/usr/bin:$PATH
 
 PRIVPATH=$HOME/.gnupg/private-keys-v1.d
 SHOULDCREATE=0
@@ -15,7 +16,7 @@ fi
 
 if [ $SHOULDCREATE == 1 ]; then
   # This is tricky during boot. May or may not work.
-  /etc/profiles/per-user/kciredor/bin/gpg-connect-agent "scd serialno" "learn --force" /bye || echo "* Yubikey not found *"
+  gpg-connect-agent "scd serialno" "learn --force" /bye || echo "* Yubikey not found *"
 
   # Cleans up gpg-agent spawned during boot which is running as a daemon vs supervised later in the process.
   kill $(pgrep -f 'gpg-agent.*daemon') 2>/dev/null || true
