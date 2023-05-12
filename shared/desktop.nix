@@ -1,3 +1,5 @@
+# Should consider migrating from X.org to Wayland.
+
 { config, pkgs, lib, ... }:
 
 let homeDir = if builtins.pathExists "/Users" then "/Users/kciredor" else "/home/kciredor";

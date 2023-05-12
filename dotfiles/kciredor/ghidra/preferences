@@ -1,11 +1,10 @@
 #User Preferences
-#Wed Mar 29 17:01:50 CEST 2023
+#Fri May 12 09:51:12 CEST 2023
 SHOW_TIPS=false
 USER_AGREEMENT=ACCEPT
-LastLookAndFeel=CDE/Motif
 ViewedProjects=
 SHOW.HELP.NAVIGATION.AID=true
 GhidraShowWhatsNew=false
-LookAndFeel.UseInvertedColors=true
+Theme=Class\:generic.theme.builtin.FlatDarkTheme
 RecentProjects=
 TIP_INDEX=1

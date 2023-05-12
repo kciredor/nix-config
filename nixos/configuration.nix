@@ -152,10 +152,10 @@ in {
   nixpkgs.overlays = [(self: super: {
     myGhidra = super.ghidra-bin.overrideAttrs (old: {
       # Pins latest public release.
-      version = "10.2";
+      version = "10.3";
       src = super.fetchzip {
-        url = "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.2.3_build/ghidra_10.2.3_PUBLIC_20230208.zip";
-        sha256 = "sha256-0uDLS+fnUqLw+oqoR/Vs56vhzNmA54k0WBvhvDmlGKs=";
+        url = "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.3_build/ghidra_10.3_PUBLIC_20230510.zip";
+        sha256 = "sha256-uFyTMWhj3yMVIPxEwkLtTqpJUi2S8A2GFjjY3rNTC2c=";
       };
     });
   })];

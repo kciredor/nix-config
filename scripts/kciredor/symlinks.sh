@@ -27,6 +27,8 @@ if [[ "$(uname)" == "Darwin" ]]; then
   # MacOS.
   SCRIPT_FILE="$(readlink -f "/usr/local/bin/ghidraRun" 2>/dev/null || readlink "/usr/local/bin/ghidraRun" 2>/dev/null || echo "$0")"
   GHIDRA_DOTDIR="$HOME/.ghidra/.$(basename ${SCRIPT_FILE%/*})"
+
+  xattr -r -d com.apple.quarantine /usr/local/Caskroom/ghidra
 fi
 if [[ ! -z $GHIDRA_DOTDIR ]]; then
   mkdir -p $GHIDRA_DOTDIR

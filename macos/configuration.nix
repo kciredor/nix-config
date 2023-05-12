@@ -167,6 +167,7 @@
       WireGuard = 1451685025;
       OnePassword-Browser = 1569813296;
       Logic-Pro = 634148309;
+      Wipr = 1320666476;
     };
   };
 }
