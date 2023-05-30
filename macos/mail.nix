@@ -99,7 +99,7 @@
       };
   
       programs.neomutt = {
-        enable = true;
+        enable = false;  # XXX: Broken on MacOS. See: https://github.com/search?q=repo%3ANixOS%2Fnixpkgs+neomutt&type=issues.
         sidebar.enable = true;
         vimKeys = true;
         checkStatsInterval = 5;

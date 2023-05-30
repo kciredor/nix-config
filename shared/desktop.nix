@@ -15,9 +15,8 @@ in {
       chromium
       cider
 
-      # Logius.
+      # Work.
       webex
-      openvpn
     ];
 
     xsession = {

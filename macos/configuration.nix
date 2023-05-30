@@ -91,7 +91,10 @@
 
   programs.fish.enable = true;
 
-  users.users.root = {};
+  users.users.root = {
+    name = "root";
+    home = "/var/root";
+  };
   users.users.kciredor = {
     name = "kciredor";
     home = "/Users/kciredor";
@@ -133,8 +136,6 @@
       "1password"
       "yubico-authenticator"
 
-      "logitech-g-hub"
-
       "brave-browser"
       "dropbox"
       "ferdium"
@@ -142,32 +143,37 @@
       "docker"
       "vmware-fusion"
       "google-cloud-sdk"  # NOTE: GKE needs `gcloud components install gke-gcloud-auth-plugin`.
+      "cloudflare-warp"
 
       "ghidra"
 
       "notion"
       "screenflow"
+      "logitech-g-hub"
 
-      # VNG.
+      # Work: VNG.
       "slack"
       "microsoft-office"
       "microsoft-teams"
       "zoom"
 
-      # Logius.
+      # Work.
+      "displaylink"
       "webex"
       "citrix-workspace"
-      "vmware-horizon-client"
-      "displaylink"
-      "openvpn-connect"
     ];
 
     # Mac AppStore apps will not be automatically uninstalled when removed from the list.
     masApps = {
       WireGuard = 1451685025;
-      OnePassword-Browser = 1569813296;
       Logic-Pro = 634148309;
+      DaftCloud = 1320450034;
+
+      # Safari extensions.
+      OnePassword-Browser = 1569813296;
       Wipr = 1320666476;
+      Vimium = 1480933944;
+      Pocket = 1477385213;
     };
   };
 }

@@ -13,6 +13,7 @@
       home.stateVersion = "22.11";
 
       # Enables TouchID for sudo approvals. See: https://github.com/LnL7/nix-darwin/pull/228.
+      # XXX: Built-in now? See: https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4500481#gistcomment-4500481.
       home.activation = {
         userscripts = lib.hm.dag.entryAfter ["writeBoundary"] ''
           $DRY_RUN_CMD /Users/kciredor/ops/nix-config/scripts/root/macos.sh $VERBOSE_ARG

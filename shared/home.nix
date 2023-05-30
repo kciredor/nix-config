@@ -23,6 +23,7 @@ in {
       htop
       ripgrep
       llvm
+      ctags  # Required by neovim plugin tagbar.
 
       exa
       bat
@@ -165,9 +166,8 @@ in {
 
         format = "$directory$character";
 
-        right_format = lib.concatStrings [
-          "$all"
-        ];
+        # XXX: Does not filter contents of $format currently, see: https://github.com/starship/starship/issues/4953.
+        right_format = "$all";
 
         git_branch.format = "[$symbol$branch]($style) ";
 
@@ -362,7 +362,6 @@ in {
 
       extraPackages = with pkgs; [
         tree-sitter
-        ctags  # Required by tagbar.
 
         # LSP.
         nodePackages.pyright
@@ -395,7 +394,8 @@ in {
           (vimPluginGit "master" "bfredl/nvim-miniyank")
 
           # Coding.
-          (nvim-treesitter.withPlugins (plugins: pkgs.tree-sitter.allGrammars))  # Replaces 'ensure_installed = "maintained"' plugin config.
+          nvim-treesitter.withAllGrammars
+          # (nvim-treesitter.withPlugins (plugins: pkgs.tree-sitter.allGrammars))  # Replaces 'ensure_installed = "maintained"' plugin config.  # XXX: Testen met nvim-treesitter-parsers.c / go / vim / sql / rst / nix / lua / etc. of tree-sitter-grammars.tree-sitter-python etc.
           tagbar
           vim-gitgutter
           vim-fugitive
