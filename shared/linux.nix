@@ -11,7 +11,15 @@ in {
 
     home.packages = with pkgs; [
       (nerdfonts.override { fonts = [ "FiraMono" ]; })  # Includes powerline and fontawesome. Required by Starship, i3status-rust, vim-lualine and vim-bufferline.
+
+      gdb  # XXX: Unsupported on MacOS.
     ];
+
+    home.file.".gdbinit".text = ''
+      set auto-load safe-path /nix/store
+
+      source ~/ops/nix-config/includes/kciredor/gef.py
+    '';
 
     services.gpg-agent = {
       enable = true;

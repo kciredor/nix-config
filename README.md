@@ -39,9 +39,8 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/kciredor/nix-config/mast
   - Add multiple desktops (spaces).
   - Prevent automatic sleeping on power adapter when display off.
   - Keyboard shortcuts: space left/right.
-  - Add WireGuard network extension to MacOS Firewall.
 - Some casks like Backblaze require manually running the deployed installer.
-- Provision WireGuard config.
+- Setup Tailscale.
 - Add Alacritty to Full Disk Access.
 - Login all apps like Backblaze and Dropbox.
 - Manual installs which are not in Nixpkgs/ Homebrew/ AppStore, like Binary Ninja and BurpSuite.

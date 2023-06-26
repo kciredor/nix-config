@@ -10,7 +10,7 @@
     useUserPackages = true;
 
     users.root = { pkgs, lib, ... }: {
-      home.stateVersion = "22.11";
+      home.stateVersion = "23.05";
 
       # Enables TouchID for sudo approvals. See: https://github.com/LnL7/nix-darwin/pull/228.
       # XXX: Built-in now? See: https://gist.github.com/jmatsushita/5c50ef14b4b96cb24ae5268dab613050?permalink_comment_id=4500481#gistcomment-4500481.
@@ -22,7 +22,7 @@
           auth       sufficient     pam_tid.so
           ' /etc/pam.d/sudo
           $DRY_RUN_CMD grep -q 'pam_reattach.so' /etc/pam.d/sudo || ${pkgs.gnused}/bin/sed -i '2i\
-          auth       optional       pam_reattach.so
+          auth       optional       /opt/homebrew/lib/pam/pam_reattach.so
           ' /etc/pam.d/sudo
         '';
       };
@@ -31,7 +31,7 @@
     users.kciredor = { config, pkgs, lib, ... }: lib.mkMerge[
       (import /Users/kciredor/ops/nix-config/shared/home.nix { config = config; pkgs = pkgs; lib = lib; }).home
       {
-        home.stateVersion = "22.11";
+        home.stateVersion = "23.05";
 
         home.packages = with pkgs; [
           m-cli
@@ -99,7 +99,7 @@
 
         home.file.".gnupg/gpg-agent.conf".text = ''
           enable-ssh-support
-          pinentry-program /usr/local/bin/pinentry-mac
+          pinentry-program /opt/homebrew/bin/pinentry-mac
         '';
       }
     ];

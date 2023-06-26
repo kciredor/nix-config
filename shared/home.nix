@@ -55,8 +55,6 @@ in {
       gettext
       _1password
 
-      gdb
-
       rustup
       (python3.withPackages(ps: with ps; [
         pip  # Required by Binary Ninja settings.json NixOS+MacOS Python path compatibility.
@@ -110,12 +108,6 @@ in {
       gc      = "git commit -v";
       glgg    = "git log --graph";
     };
-
-    home.file.".gdbinit".text = ''
-      set auto-load safe-path /nix/store
-
-      source ~/ops/nix-config/includes/kciredor/gef.py
-    '';
 
     programs.fish = {
       enable = true;

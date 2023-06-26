@@ -15,7 +15,7 @@ in {
       chromium
 
       tailscale
-      unstable.trayscale
+      unstable.tailscale-systray  # XXX: Trayscale is more powerful, but the systray icon does not appear.
 
       # Work.
       webex
@@ -79,6 +79,8 @@ in {
     programs.i3status-rust = {
       enable = true;
   
+      # TODO: New version requires different config syntax.
+      # TODO: Add tailscale-systray.
       bars = {
         top = {
           blocks = [

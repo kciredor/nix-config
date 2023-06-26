@@ -119,7 +119,6 @@
 
     taps = [
       "homebrew/cask"
-      "homebrew/cask-drivers"
     ];
 
     brews = [
@@ -150,7 +149,7 @@
 
       "notion"
       "screenflow"
-      "logitech-g-hub"
+      # "logitech-g-hub"  # XXX: Does not support aarch64.
 
       # Work: VNG.
       "slack"
@@ -166,7 +165,6 @@
 
     # Mac AppStore apps will not be automatically uninstalled when removed from the list.
     masApps = {
-      WireGuard = 1451685025;
       Tailscale = 1475387142;
       Logic-Pro = 634148309;
       DaftCloud = 1320450034;
