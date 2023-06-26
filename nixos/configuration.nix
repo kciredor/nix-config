@@ -57,6 +57,9 @@ in {
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
 
+  # Tailscale.
+  services.tailscale.enable = true;
+
   # Docking (configured by home-manager).
   services.autorandr = {
     enable = true;
@@ -98,12 +101,8 @@ in {
     };
   };
 
-  # VPN.
+  # Etc files.
   environment.etc = {
-    "NetworkManager/system-connections/vpn.nmconnection" = {
-      source = "/home/kciredor/ops/nix-config/secrets/kciredor/vpn.nmconnection";
-      mode = "0600";
-    };
     # Required by displaylink because otherwise the system freezes, see: https://support.displaylink.com/knowledgebase/articles/1843660-screen-freezes-after-opening-an-application-only.
     "modprobe.d/evdi.conf" = {
       text = "options evdi initial_device_count=2";

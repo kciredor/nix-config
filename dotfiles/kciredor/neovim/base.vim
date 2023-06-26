@@ -30,7 +30,7 @@ xmap > >gv
 cmap w!! w !sudo tee % > /dev/null
 
 " File specifics.
-autocmd Filetype python      let &colorcolumn = "80,".join(range(101,999),",")
+autocmd Filetype python      let &colorcolumn = "80,".join(range(141,999),",")
 autocmd Filetype yaml        setlocal sw=2 ts=2
 autocmd Filetype html        setlocal expandtab!
 autocmd Filetype htmldjango  setlocal expandtab!

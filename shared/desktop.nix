@@ -13,7 +13,9 @@ in {
       feh
       i3lock-color
       chromium
-      cider
+
+      tailscale
+      unstable.trayscale
 
       # Work.
       webex

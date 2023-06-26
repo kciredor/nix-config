@@ -271,7 +271,7 @@ in {
         disable-ccid = true;
       };
 
-      mutableKeys = false;
+      mutableKeys = true;
       mutableTrust = false;
       publicKeys = [
         {
