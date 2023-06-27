@@ -10,7 +10,7 @@ REFRESH=0
 if [[ ! $OUTPUT =~ nixos.http ]]; then
   REFRESH=1
 
-  nix-channel --add https://nixos.org/channels/nixos-22.11 nixos
+  nix-channel --add https://nixos.org/channels/nixos-23.05 nixos
 fi
 
 if [[ ! $OUTPUT =~ nixos-hardware ]]; then
@@ -28,7 +28,7 @@ fi
 if [[ ! $OUTPUT =~ home-manager ]]; then
   REFRESH=1
 
-  nix-channel --add https://github.com/nix-community/home-manager/archive/release-22.11.tar.gz home-manager
+  nix-channel --add https://github.com/nix-community/home-manager/archive/release-23.05.tar.gz home-manager
 fi
 
 if [[ $REFRESH -eq 1 ]]; then

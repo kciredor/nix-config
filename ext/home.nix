@@ -1,5 +1,4 @@
 # Almost on-par with NixOS. TODO:
-# - Expand i3status-rust blocks or replace with Polybar.
 # - Fonts do not apply (i3status-rust, tmux, vim, etc.).
 # - Perhaps more from nixos/configuration to linux.sh.
 # - Ghidra and Binary Ninja including symlinks.sh.
@@ -16,7 +15,7 @@ lib.mkMerge [
     news.display = "silent";
 
     home = {
-      stateVersion = "22.11";
+      stateVersion = "23.05";
 
       username = "kciredor";
       homeDirectory = "/home/kciredor";
@@ -44,7 +43,6 @@ lib.mkMerge [
     # NOTE: Alacritty requires OpenGL which is not always supported, for instance when using a work provided VDI.
     xsession.windowManager.i3.config.terminal = "x-terminal-emulator";
 
-    # XXX: Stable (NixOS) and unstable (other Linux) i3status-rust versions have different blocks config syntax.
     programs.i3status-rust.bars = lib.mkForce {
       top = {
         blocks = [

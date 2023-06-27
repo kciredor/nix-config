@@ -1,4 +1,4 @@
-# Should consider migrating from X.org to Wayland.
+# TODO: Migrate from X.org to Wayland, see: https://drakerossman.com/blog/wayland-on-nixos-confusion-conquest-triumph.
 
 { config, pkgs, lib, ... }:
 
@@ -36,6 +36,9 @@ in {
           gaps = {
             inner = 8;
           };
+
+          window.titlebar = false;
+          floating.titlebar = false;
 
           keybindings = pkgs.lib.mkOptionDefault {
             "${config.modifier}+Shift+e" = "exec i3-nagbar -t warning -m 'Confirm exit?' -b 'Yes' 'i3-msg exit'";
@@ -79,7 +82,6 @@ in {
     programs.i3status-rust = {
       enable = true;
   
-      # TODO: New version requires different config syntax.
       # TODO: Add tailscale-systray.
       bars = {
         top = {
@@ -87,13 +89,7 @@ in {
             {
               block = "load";
               interval = 1;
-              format = "{1m}";
-            }
-            {
-              block = "music";
-              player = "cider";
-              on_collapsed_click = "cider";
-              buttons = [ "play" "next" ];
+              format = "$1m.eng(w:3)";
             }
             {
               block = "custom";
@@ -105,19 +101,35 @@ in {
               shell = "bash";
             }
             {
-              block = "networkmanager";
-              on_click = "$TERMINAL -e nmtui";
-              device_format = "{icon}{ap}";
-              interface_name_include = [ "eth.*" "wlan.*" "vpn.*" ];
+              block = "net";
+              format = "$icon  $ssid ";
+              click = [
+                {
+                  button = "left";
+                  cmd = "$TERMINAL -e nmtui";
+                }
+              ];
             }
             {
-              block = "custom";
-              command = "echo ";
-              on_click = "bash -c 'blueman-manager; pkill blueman-applet; pkill blueman-tray'";
+              block = "service_status";
+              service = "bluetooth";
+              active_format = " ";
+              inactive_format = "X";
+              click = [
+                {
+                  button = "left";
+                  cmd = "bash -c 'blueman-manager; pkill blueman-applet; pkill blueman-tray'";
+                }
+              ];
             }
             {
               block = "sound";
-              on_click = "pavucontrol";
+              click = [
+                {
+                  button = "left";
+                  cmd = "pavucontrol";
+                }
+              ];
             }
             {
               block = "battery";
@@ -125,7 +137,7 @@ in {
             {
               block = "time";
               interval = 60;
-              format = "%a %d/%m %R";
+              format = "$timestamp.datetime(f:'%a %d/%m %R')";
             }
           ];
           theme = "gruvbox-dark";

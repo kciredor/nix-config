@@ -8,7 +8,7 @@
     useUserPackages = true;
 
     users.root = { config, pkgs, lib, ... }: {
-      home.stateVersion = "22.11";
+      home.stateVersion = "23.05";
 
       home.activation = {
         userscripts = lib.hm.dag.entryAfter ["writeBoundary"] ''
@@ -22,7 +22,7 @@
       (import /home/kciredor/ops/nix-config/shared/linux.nix { config = config; pkgs = pkgs; lib = lib; }).linux
       (import /home/kciredor/ops/nix-config/shared/desktop.nix { config = config; pkgs = pkgs; lib = lib; }).desktop
       {
-        home.stateVersion = "22.11";
+        home.stateVersion = "23.05";
 
         home.packages = with pkgs; [
           unstable.yubioath-flutter
