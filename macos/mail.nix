@@ -1,6 +1,9 @@
 { pkgs, lib, config, ... }:
 
-{
+# This works both with sudo (NixOS) and without sudo (MacOS, other Linux) rebuilds.
+let homeDir = if builtins.pathExists "/Users" then "/Users/kciredor" else "/home/kciredor";
+
+in {
   home-manager = {
     users.kciredor = { pkgs, lib, ... }: {
       home.packages = with pkgs; [
@@ -17,7 +20,7 @@
             realName = "Roderick Schaefer";
             address = "roderick@wehandle.it";
             userName = "roderick@wehandle.it";
-            passwordCommand = "$HOME/ops/nix-config/secrets/kciredor/gmail.sh";
+            passwordCommand = "${homeDir}/ops/nix-config/secrets/kciredor/gmail.sh";
             signature = {
               showSignature = "append";
               text = ''
@@ -90,6 +93,15 @@
             notmuch = {
               enable = true;
             };
+            imapnotify = {
+              enable = true;
+              boxes = [ "Inbox" ];
+              extraConfig = {
+                wait = 10;
+              };
+              onNotify = "${pkgs.notmuch}/bin/notmuch new";
+              onNotifyPost = "/usr/bin/osascript -e 'display notification \"Synced\" with title \"New mail\"'";
+            };
             neomutt = {
               enable = true;
               extraMailboxes = [ "Archive" "Sent" "Flagged" "Drafts" "Spam" "Trash" ];
@@ -142,36 +154,14 @@
           SyncState *
         '';
       };
+
+      services.imapnotify.enable = true;
   
       programs.notmuch = {
         enable = true;
         new.tags = [];
         hooks.preNew = "mbsync gmail";
       };
-
-      # Interval sync because imapnotify on macOS has no service support and on macOS mbsync is slow.
-      home.file."Library/LaunchAgents/com.notmuch.plist".text = ''
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-            <key>Label</key>
-            <string>com.notmuch</string>
-            <key>ProgramArguments</key>
-            <array>
-                <string>/etc/profiles/per-user/kciredor/bin/notmuch</string>
-                <string>new</string>
-            </array>
-            <key>StartInterval</key>
-            <integer>900</integer>
-            <key>EnvironmentVariables</key>
-            <dict>
-                <key>PATH</key>
-                <string>/etc/profiles/per-user/kciredor/bin</string>
-            </dict>
-        </dict>
-        </plist>
-      '';
     };
   };
 }

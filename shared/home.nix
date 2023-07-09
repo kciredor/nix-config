@@ -78,7 +78,6 @@ in {
         $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/yubikey.sh $VERBOSE_ARG
         $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/symlinks.sh $VERBOSE_ARG
         $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/initapps.sh $VERBOSE_ARG
-        $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/mailsync.sh $VERBOSE_ARG
         $DRY_RUN_CMD $HOME/ops/nix-config/scripts/kciredor/linux.sh $VERBOSE_ARG
       '';
     };
