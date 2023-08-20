@@ -135,6 +135,7 @@
       "1password"
       "yubico-authenticator"
 
+      "google-chrome"
       "brave-browser"
       "dropbox"
       "ferdium"
@@ -147,17 +148,17 @@
 
       "ghidra"
 
+      "tradingview"
+
       "notion"
       "screenflow"
-      # "logitech-g-hub"  # XXX: Does not support aarch64.
+      "logitech-g-hub"
 
-      # Work: VNG.
+      # Work.
       "slack"
       "microsoft-office"
       "microsoft-teams"
       "zoom"
-
-      # Work.
       "displaylink"
       "webex"
       "citrix-workspace"

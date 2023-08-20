@@ -70,6 +70,7 @@ in {
       ]))
       nodejs
       lessc
+      radare2
     ];
 
     # User scripts are activated by `nixos-rebuild boot` upon reboot covering nixos-install and during `nixos|darwin-rebuild switch`.
