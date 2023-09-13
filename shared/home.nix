@@ -16,22 +16,24 @@ in {
       gnumake
       watch
 
+      neovim
       curl
       wget
       openssl
       vim
       htop
-      ripgrep
+      ripgrep  # Required by LazyVim.
+      fd  # Required by LazyVim.
+      lazygit  # Required by LazyVim.
       llvm
-      ctags  # Required by neovim plugin tagbar.
 
-      exa
+      eza
       bat
+      difftastic
       file  # Required by gdb-gef.
       bintools-unwrapped  # Required by gdb-gef.
       unzip
       rar
-      urlscan  # Required by neomutt.
 
       kubectl
       kubectx
@@ -53,7 +55,6 @@ in {
       jq
       yq
       gettext
-      _1password
 
       rustup
       (python3.withPackages(ps: with ps; [
@@ -88,14 +89,18 @@ in {
 
     # Shared by all shells.
     home.shellAliases = {
-      ls      = "exa -g";
+      ls      = "eza -g";
       l       = "ls -l";
       la      = "ls -alg";
       lr      = "ls -lRg";
       lt      = "ls --tree";
       lg      = "ls -g --long --git";
 
+      vi      = "nvim";
+      vim     = "nvim";
+      vimdiff = "nvim -d";
       cat     = "bat";
+      diff    = "difft";
 
       ".."    = "cd ../";
       "..."   = "cd ../../";
@@ -157,8 +162,6 @@ in {
         };
 
         format = "$directory$character";
-
-        # XXX: Does not filter contents of $format currently, see: https://github.com/starship/starship/issues/4953.
         right_format = "$all";
 
         git_branch.format = "[$symbol$branch]($style) ";
@@ -300,6 +303,8 @@ in {
         cleanup = "!git branch --merged | grep  -v '\\*\\|master\\|develop' | xargs -n 1 git branch -d";
       };
 
+      difftastic.enable = true;
+
       includes = [
         {
           contents = {
@@ -316,7 +321,7 @@ in {
             };
 
             merge = {
-              tool = "vimdiff";
+              tool = "nvimdiff";
             };
 
             mergetool = {
@@ -330,83 +335,6 @@ in {
           };
         }
       ];
-    };
-
-    programs.neovim = {
-      enable = true;
-      package = pkgs.neovim-unwrapped;
-
-      viAlias = true;
-      vimAlias = true;
-      vimdiffAlias = true;
-
-      extraConfig = builtins.concatStringsSep "\n" [
-        (lib.strings.fileContents "${homeDir}/ops/nix-config/dotfiles/kciredor/neovim/base.vim")
-        (lib.strings.fileContents "${homeDir}/ops/nix-config/dotfiles/kciredor/neovim/plugins.vim")
-
-        ''
-          lua << EOF
-          ${lib.strings.fileContents "${homeDir}/ops/nix-config/dotfiles/kciredor/neovim/plugins.lua"}
-          ${lib.strings.fileContents "${homeDir}/ops/nix-config/dotfiles/kciredor/neovim/lsp.lua"}
-          EOF
-        ''
-      ];
-
-      extraPackages = with pkgs; [
-        tree-sitter
-
-        # LSP.
-        nodePackages.pyright
-        gopls
-        rust-analyzer
-      ];
-
-      plugins = with pkgs.vimPlugins;
-        let
-          vimPluginGit = ref: repo: pkgs.vimUtils.buildVimPluginFrom2Nix {
-            pname = "${lib.strings.sanitizeDerivationName repo}";
-            version = ref;
-            src = builtins.fetchGit {
-              url = "https://github.com/${repo}.git";
-              ref = ref;
-            };
-          };
-
-        in [
-          # Theme.
-          tokyonight-nvim
-
-          # Basics.
-          lualine-nvim
-          bufferline-nvim
-          { plugin = nvim-web-devicons; optional = true; }  # Required by lualine, bufferline and nvim-tree.
-          nvim-tree-lua
-          fzfWrapper
-          fzf-vim
-          (vimPluginGit "master" "bfredl/nvim-miniyank")
-
-          # Coding.
-          nvim-treesitter.withAllGrammars
-          # (nvim-treesitter.withPlugins (plugins: pkgs.tree-sitter.allGrammars))  # Replaces 'ensure_installed = "maintained"' plugin config.  # XXX: Testen met nvim-treesitter-parsers.c / go / vim / sql / rst / nix / lua / etc. of tree-sitter-grammars.tree-sitter-python etc.
-          tagbar
-          vim-gitgutter
-          vim-fugitive
-          vim-go
-          rust-vim
-
-          # LSP including completion and snippets.
-          nvim-lspconfig
-          nvim-cmp
-          cmp-nvim-lsp
-          cmp_luasnip
-          luasnip
-          friendly-snippets
-        ];
-    };
-
-    programs.go = {
-      enable = true;
-      goPath = ".go";
     };
 
     programs.alacritty = {
@@ -424,6 +352,11 @@ in {
           WINIT_X11_SCALE_FACTOR = "1";
         };
       };
+    };
+
+    programs.go = {
+      enable = true;
+      goPath = ".go";
     };
   };
 }

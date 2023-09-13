@@ -85,7 +85,7 @@
     fontDir.enable = true;
 
     fonts = with pkgs; [
-      (nerdfonts.override { fonts = [ "Hack" ]; })
+      (nerdfonts.override { fonts = [ "Hack" ]; })  # Required by Starship, Neovim (LazyVim).
     ];
   };
 
@@ -132,8 +132,7 @@
     casks = [
       "backblaze"
       "hammerspoon"
-      "1password"
-      "yubico-authenticator"
+      "1password"  # TODO: Remove after VNG.
 
       "google-chrome"
       "brave-browser"

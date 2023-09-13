@@ -10,7 +10,7 @@ in {
     fonts.fontconfig.enable = true;
 
     home.packages = with pkgs; [
-      (nerdfonts.override { fonts = [ "FiraMono" ]; })  # Includes powerline and fontawesome. Required by Starship, i3status-rust, vim-lualine and vim-bufferline.
+      (nerdfonts.override { fonts = [ "FiraMono" ]; })  # Includes powerline and fontawesome. Required by Starship, Neovim (LazyVim), i3status-rust.
 
       gdb  # XXX: Unsupported on MacOS.
     ];
