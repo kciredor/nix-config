@@ -132,7 +132,6 @@
     casks = [
       "backblaze"
       "hammerspoon"
-      "1password"  # TODO: Remove after VNG.
 
       "google-chrome"
       "brave-browser"
@@ -170,7 +169,6 @@
       DaftCloud = 1320450034;
 
       # Safari extensions.
-      OnePassword-Browser = 1569813296;
       Wipr = 1320666476;
       Vimium = 1480933944;
       Pocket = 1477385213;

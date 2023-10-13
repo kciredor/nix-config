@@ -49,6 +49,7 @@ in {
       awscli2
       azure-cli
       doctl
+      hugo
 
       dnsutils
       inetutils

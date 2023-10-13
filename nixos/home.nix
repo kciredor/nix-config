@@ -50,7 +50,6 @@
           package = pkgs.unstable.brave;
   
           extensions = [
-            { id = "aeblfdkhhhdcdjpifhhbdiojplfjncoa"; }  # 1password.
             { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; }  # Vimium.
             { id = "fihnjjcciajhdojfnbdddfaoknhalnja"; }  # I don't care about cookies.
             { id = "niloccemoadcdkdjlinkgdfekeahmflj"; }  # Pocket.
