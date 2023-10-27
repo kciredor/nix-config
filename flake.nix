@@ -1,0 +1,52 @@
+{
+  description = "kciredor's MacOS and Linux Nix config";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs";
+
+    home-manager.url = "github:nix-community/home-manager";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    nix-darwin.url = "github:LnL7/nix-darwin";
+    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
+  };
+
+  outputs = {
+    self,
+    nixpkgs,
+    home-manager,
+    nix-darwin,
+    ...
+  } @ inputs: let
+    inherit (self) outputs;
+  in {
+    # Bootstrap using `bootstrap/macos.sh`.
+    darwinConfigurations = {
+      "macos" = nix-darwin.lib.darwinSystem {
+        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+        specialArgs = { inherit inputs outputs; };
+        modules = [
+          ./hosts/macos.nix
+        ];
+      };
+    };
+
+    # Bootstrap using `bootstrap/linux.sh`.
+    homeConfigurations = {
+      "kciredor@rs-mbp14" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+        extraSpecialArgs = { inherit inputs outputs; };
+        modules = [
+          ./hosts/kciredor-rs-mbp14.nix
+        ];
+      };
+      "kciredor@ubuntu" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.aarch64-linux;
+        extraSpecialArgs = { inherit inputs outputs; };
+        modules = [
+          ./hosts/kciredor-ubuntu.nix
+        ];
+      };
+    };
+  };
+}
