@@ -18,6 +18,7 @@ in {
   programs.helix = {
     enable = true;
     package = helixWrapped;
+    defaultEditor = true;
 
     settings = {
       theme = "catppuccin_macchiato";

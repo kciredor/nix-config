@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }: {
+{ config, pkgs, lib, ... }: {
   imports = [
     ./helix.nix
   ];
@@ -18,7 +18,7 @@
 
     activation = {
       shell = lib.hm.dag.entryAfter ["writeBoundary"] ''
-        $DRY_RUN_CMD grep -q $HOME/.nix-profile/bin/fish /etc/shells || ((echo "$HOME/.nix-profile/bin/fish" | /usr/bin/sudo /usr/bin/tee -a /etc/shells >/dev/null) && /usr/bin/sudo /usr/bin/chsh -s $HOME/.nix-profile/bin/fish $USER)
+        $DRY_RUN_CMD grep -q $HOME/.nix-profile/bin/zsh /etc/shells || ((echo "$HOME/.nix-profile/bin/zsh" | /usr/bin/sudo /usr/bin/tee -a /etc/shells >/dev/null) && /usr/bin/sudo /usr/bin/chsh -s $HOME/.nix-profile/bin/zsh $USER)
       '';
     };
 
@@ -107,45 +107,48 @@
     # Allows for integrations like starship when dropping to nix-shell which does not play nice with fish.
     bash.enable = true;
 
-    fish = {
+    zsh = {
       enable = true;
 
-      shellInit = ''
+      dotDir = ".config/zsh";
+      defaultKeymap = "viins";
+      autocd = false;
+      enableAutosuggestions = true;
+      enableVteIntegration = true;
+      enableCompletion = true;
+
+      syntaxHighlighting = {
+        enable = true;
+      };
+
+      history = {
+        path = "${config.xdg.configHome}/zsh/zsh_history";
+        size = 100000;
+        extended = true;
+        ignoreAllDups = true;
+        share = true;
+      };
+
+      initExtra = ''
+        zstyle ':completion:*' matcher-list 'r:|=*' 'l:|=* r:|=*'
+        zstyle ':completion:*' menu select
+
         umask 027
+        export PATH="$HOME/bin:$HOME/.nix-profile/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
 
-        fish_vi_key_bindings
-        set -xg fish_greeting
-
-        set -xg EDITOR hx
-        set -xg PATH "$HOME/bin:$HOME/.nix-profile/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
+        # Required by tmux config to set 'pane_path' variable with current path without dereferencing symlinks.
+        function _send_cwd_for_tmux {
+          [[ ! -v TMUX ]] && return
+          printf "\033]7;$PWD\033\\"
+        }
+        add-zsh-hook precmd _send_cwd_for_tmux
       '';
-
-      plugins = [
-          {
-            name = "bass";
-            src = pkgs.fetchFromGitHub {
-              owner = "edc";
-              repo = "bass";
-              rev = "7296c6e";
-              sha256 = "sha256-zon5yBcCvL99L2Q5Cf++dfILvkwTezqWpkFUGIoD8Wc=";
-            };
-          }
-          {
-            name = "fish-kubectl-completions";
-            src = pkgs.fetchFromGitHub {
-              owner = "evanlucas";
-              repo = "fish-kubectl-completions";
-              rev = "ced6763";
-              sha256 = "sha256-OYiYTW+g71vD9NWOcX1i2/TaQfAg+c2dJZ5ohwWSDCc=";
-            };
-          }
-      ];
     };
 
     starship = {
       enable = true;
       enableBashIntegration = true;
-      enableFishIntegration = true;
+      enableZshIntegration = true;
 
       settings = {
         directory = {
@@ -168,12 +171,6 @@
           style = "blue";
           symbol = "☁️ ";
           format = "[$symbol $project]($style) ";
-        };
-
-        # Required by tmux config to set 'pane_path' variable with current path without dereferencing symlinks.
-        custom.tmux = {
-          command = "printf \"\\033]7;$PWD\\033\\\\\"";
-          when = "true";
         };
       };
     };
@@ -224,13 +221,13 @@
     fzf = {
       enable = true;
       enableBashIntegration = true;
-      enableFishIntegration = true;
+      enableZshIntegration = true;
     };
 
     autojump = {
       enable = true;
       enableBashIntegration = true;
-      enableFishIntegration = true;
+      enableZshIntegration = true;
     };
 
     ssh = {

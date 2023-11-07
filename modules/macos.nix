@@ -12,9 +12,9 @@
     pinentry-program /opt/homebrew/bin/pinentry-mac
   '';
 
-  programs.fish.shellInit = ''
-    set -xg PATH "$PATH:/opt/homebrew/bin"
-    set -xg SSH_AUTH_SOCK $HOME/.gnupg/S.gpg-agent.ssh
+  programs.zsh.initExtra = ''
+    export PATH="$PATH:/opt/homebrew/bin"
+    export SSH_AUTH_SOCK="$HOME/.gnupg/S.gpg-agent.ssh"
     /usr/bin/pgrep gpg-agent >/dev/null || gpg-agent --daemon >/dev/null
   '';
 

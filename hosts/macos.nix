@@ -22,6 +22,10 @@
       ' /etc/pam.d/sudo
   '';
 
+  # Required by zsh autocompletion, managed by home-manager.
+  programs.zsh.enable = true;
+  environment.pathsToLink = [ "/share/zsh" ];
+
   environment.launchDaemons = {
     "com.apple.locate.plist".source = "/System/Library/LaunchDaemons/com.apple.locate.plist";
   };

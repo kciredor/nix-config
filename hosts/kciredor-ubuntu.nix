@@ -19,7 +19,7 @@
   };
 
   home.shellAliases = {
-    rebuild = "home-manager switch -b backup --flake $HOME/ops/nix-config#$USER@(cat /etc/hostname)";
+    rebuild = "home-manager switch -b backup --flake $HOME/ops/nix-config#$USER@$(cat /etc/hostname)";
     vinix   = "vim ~/ops/nix-config/flake.nix ~/ops/nix-config/hosts/kciredor-ubuntu.nix ~/ops/nix-config/modules/home.nix ~/ops/nix-config/modules/linux.nix ~/ops/nix-config/modules/desktop.nix";
   };
 
