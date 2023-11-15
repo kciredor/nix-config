@@ -7,15 +7,8 @@
     clip = "pbcopy";
   };
 
-  home.file.".gnupg/gpg-agent.conf".text = ''
-    enable-ssh-support
-    pinentry-program /opt/homebrew/bin/pinentry-mac
-  '';
-
   programs.zsh.initExtra = ''
     export PATH="$PATH:/opt/homebrew/bin"
-    export SSH_AUTH_SOCK="$HOME/.gnupg/S.gpg-agent.ssh"
-    /usr/bin/pgrep gpg-agent >/dev/null || gpg-agent --daemon >/dev/null
   '';
 
   programs.alacritty = {

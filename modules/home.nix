@@ -236,23 +236,6 @@
       serverAliveInterval = 120;
     };
 
-    gpg = {
-      enable = true;
-
-      # Defaults are based on drduh's hardened config, only adding what was missing.
-      settings = {
-        throw-keyids = "";
-      };
-
-      # Play nice between agent and yubikey totp.
-      scdaemonSettings = {
-        disable-ccid = true;
-      };
-
-      mutableKeys = true;
-      mutableTrust = false;
-    };
-
     git = {
       enable = true;
 
