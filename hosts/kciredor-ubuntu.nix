@@ -25,7 +25,7 @@
 
   programs.git = {
     userName = "Roderick Schaefer";
-    userEmail = "roderick@wehandle.it";
+    userEmail = "roderick@kciredor.com";
   };
 
   # Alacritty does not work for this virtual host.

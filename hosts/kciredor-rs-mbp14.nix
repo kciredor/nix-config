@@ -26,7 +26,7 @@
 
   programs.git = {
     userName = "Roderick Schaefer";
-    userEmail = "roderick@wehandle.it";
+    userEmail = "roderick@kciredor.com";
   };
 
   programs.zsh.history.path = lib.mkForce "$HOME/.HOME/dotfiles/zsh_history";

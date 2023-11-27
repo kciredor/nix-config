@@ -5,8 +5,8 @@
       gmail = {
         primary = true;
         flavor = "gmail.com";
-        address = "roderick@wehandle.it";
-        userName = "roderick@wehandle.it";
+        address = "roderick@kciredor.com";
+        userName = "roderick@kciredor.com";
         passwordCommand = "/usr/bin/security find-generic-password -w -s neomutt";
         imap = {
           host = "imap.gmail.com";

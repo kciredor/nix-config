@@ -136,6 +136,7 @@
       "backblaze"
       "1password"
       "google-chrome"
+      "cloudflare-warp"
       "hammerspoon"
       "dropbox"
       "ferdium"
@@ -148,15 +149,10 @@
       "tradingview"
 
       "logitech-g-hub"
-
-      # Work.
-      "webex"
-      "citrix-workspace"
     ];
 
     # Mac AppStore apps will not be automatically uninstalled when removed from the list.
     masApps = {
-      Tailscale = 1475387142;
       Logic-Pro = 634148309;
 
       # Safari extensions.

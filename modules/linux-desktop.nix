@@ -8,8 +8,6 @@
     xsel  # Required by tmux-yank.
     feh
     scrot
-
-    tailscale
   ];
 
   home.activation = {
