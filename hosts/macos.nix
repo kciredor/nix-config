@@ -112,7 +112,7 @@
     };
 
     onActivation = {
-      autoUpdate = false;
+      autoUpdate = true;
       upgrade = true;
       cleanup = "zap";
     };
@@ -128,8 +128,6 @@
     brews = [
       "pam-reattach"  # Required by sudo via TouchID.
       "pinentry-mac"
-
-      "openjdk"  # Required by Ghidra.
     ];
 
     casks = [
@@ -146,6 +144,7 @@
       "vmware-fusion"
 
       "ghidra"
+      "temurin"  # Required by Ghidra.
       "tradingview"
 
       "logitech-g-hub"
