@@ -18,7 +18,7 @@
 
     activation = {
       shell = lib.hm.dag.entryAfter ["writeBoundary"] ''
-        $DRY_RUN_CMD grep -q $HOME/.nix-profile/bin/zsh /etc/shells || ((echo "$HOME/.nix-profile/bin/zsh" | /usr/bin/sudo /usr/bin/tee -a /etc/shells >/dev/null) && /usr/bin/sudo /usr/bin/chsh -s $HOME/.nix-profile/bin/zsh $USER)
+        $DRY_RUN_CMD grep -q $HOME/.nix-profile/bin/zsh /etc/shells || ((echo "$HOME/.nix-profile/bin/zsh" | /usr/bin/sudo /usr/bin/tee -a /etc/shells >/dev/null) && (grep -q $USER /etc/passwd && /usr/bin/sudo /usr/bin/chsh -s $HOME/.nix-profile/bin/zsh $USER))
       '';
     };
 
@@ -59,6 +59,7 @@
       kubectl
       kubectx
       kubernetes-helm
+      kustomize
       minikube
       kind
       k9s
@@ -242,7 +243,7 @@
       ignores = [ "*~" ];
 
       aliases = {
-        cleanup = "!git branch --merged | grep  -v '\\*\\|master\\|develop' | xargs -n 1 git branch -d";
+        cleanup = "!git branch --merged | grep  -v '\\*\\|main\\|master' | xargs -n 1 git branch -d";
       };
 
       difftastic.enable = true;

@@ -15,6 +15,8 @@ echo -ne "{\n  allowUnfree = true;\n}" >>$HOME/.config/nixpkgs/config.nix
 PATH=/nix/var/nix/profiles/default/bin:$PATH
 
 rm -f ~/.bashrc ~/.profile
+HOSTNAME=$(hostnamectl --pretty hostname)
+if [[ ${#HOSTNAME} == 0 ]]; then HOSTNAME=$(hostname); fi
 nix build ".#homeConfigurations.$USER@$HOSTNAME.activationPackage"
 ./result/activate
 rm -rf ./result
