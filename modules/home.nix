@@ -37,6 +37,7 @@
       bat
       difftastic
       file
+      tldr
       neovim
       curl
       wget
