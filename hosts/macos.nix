@@ -136,9 +136,9 @@
       "google-chrome"
       "cloudflare-warp"
       "hammerspoon"
-      "dropbox"
       "ferdium"
       "notion"
+      "spotify"
 
       "docker"
       "vmware-fusion"
