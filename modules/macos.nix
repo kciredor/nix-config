@@ -21,6 +21,7 @@
       window = {
         opacity = 0.9;
         startup_mode = "Maximized";
+        option_as_alt = "OnlyLeft";
       };
 
       shell = {

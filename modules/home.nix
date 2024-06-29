@@ -71,7 +71,10 @@
       (python3.withPackages(ps: with ps; [
         pip  # Required by Binary Ninja settings.json NixOS+MacOS Python path compatibility.
       ]))
+      gotools
+      delve
       rustup
+      ruff
       nodejs
       hugo
     ];

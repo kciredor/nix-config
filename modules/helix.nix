@@ -1,24 +1,23 @@
-# See: https://github.com/nix-community/home-manager/issues/2923.
 {
   pkgs,
-  lib,
   ...
-}: let
-  helixPkgs = with pkgs; [
-    nodePackages.bash-language-server
-    python3Packages.python-lsp-server
-    gopls
-    rust-analyzer
-  ];
-  helixWrapped = pkgs.writeShellScriptBin "hx" ''
-    PATH="${lib.makeBinPath helixPkgs}:$PATH"
-    ${pkgs.helix}/bin/hx "$@"
-  '';
-in {
+}: {
   programs.helix = {
     enable = true;
-    package = helixWrapped;
     defaultEditor = true;
+
+    extraPackages = with pkgs; [
+      nodePackages.bash-language-server
+
+      nodePackages.pyright
+      python3Packages.ruff-lsp
+      gopls
+      rust-analyzer
+      clang
+
+      terraform-ls
+      nodePackages.dockerfile-language-server-nodejs
+    ];
 
     settings = {
       theme = "catppuccin_macchiato";
@@ -50,6 +49,27 @@ in {
           display-messages = true;
         };
       };
+    };
+
+    languages = {
+      language-server = {
+        ruff.command = "ruff-lsp";
+        rust-analyzer.config.check.command = "clippy";
+      };
+
+      language = [
+        {
+          name = "python";
+          language-servers = [ "pyright" "ruff" ];
+
+          # TODO: Add debugger support when implemented, see: https://github.com/helix-editor/helix/issues/5079.
+        }
+        {
+          name = "go";
+          auto-format = true;
+          formatter = { command = "goimports"; };
+        }
+      ];
     };
   };
 }
