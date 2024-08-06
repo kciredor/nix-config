@@ -25,6 +25,7 @@
         bufferline = "always";
         cursorline = true;
         line-number = "relative";
+        soft-wrap.enable = true;
         rulers = [120];
 
         cursor-shape = {
@@ -69,6 +70,8 @@
           auto-format = true;
           formatter = { command = "goimports"; };
         }
+
+        # Dart is automatically picked up when installed.
       ];
     };
   };

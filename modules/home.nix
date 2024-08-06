@@ -77,6 +77,8 @@
       ruff
       nodejs
       hugo
+      flutter
+      nodePackages.firebase-tools
     ];
 
     # Shared by all shells.
@@ -140,6 +142,9 @@
 
         umask 027
         export PATH="$HOME/bin:$HOME/.nix-profile/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
+
+        # Add specific paths, usually dev tooling related.
+        export PATH="$HOME/.pub-cache/bin:$PATH"
 
         # Required by tmux config to set 'pane_path' variable with current path without dereferencing symlinks.
         function _send_cwd_for_tmux {
