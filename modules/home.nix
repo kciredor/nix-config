@@ -77,6 +77,8 @@
       ruff
       nodejs
       hugo
+      dart
+      flutter
     ];
 
     # Shared by all shells.
