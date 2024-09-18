@@ -279,6 +279,9 @@
             credential = {
               helper = "store";
             };
+            "credential \"https://*.*.sourcemanager.dev\"" = {
+              helper = "gcloud.sh";
+            };
           };
         }
       ];
