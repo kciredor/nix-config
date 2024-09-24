@@ -9,8 +9,8 @@
     extraPackages = with pkgs; [
       nodePackages.bash-language-server
 
-      nodePackages.pyright
-      python3Packages.ruff-lsp
+      pyright
+      ruff-lsp
       gopls
       rust-analyzer
       clang

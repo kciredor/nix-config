@@ -7,6 +7,7 @@
         flavor = "gmail.com";
         address = "roderick@kciredor.com";
         userName = "roderick@kciredor.com";
+        realName = "Roderick Schaefer";
         passwordCommand = "/usr/bin/security find-generic-password -w -s neomutt";
         imap = {
           host = "imap.gmail.com";

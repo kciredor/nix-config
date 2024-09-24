@@ -30,15 +30,13 @@
     "com.apple.locate.plist".source = "/System/Library/LaunchDaemons/com.apple.locate.plist";
   };
 
-  fonts = {
-    fontDir.enable = true;
-
-    fonts = with pkgs; [
-      (nerdfonts.override { fonts = [ "Hack" ]; })  # Required by Starship, Neovim.
-    ];
-  };
+  fonts.packages = with pkgs; [
+    (nerdfonts.override { fonts = [ "Hack" ]; })  # Required by Starship, Neovim.
+  ];
 
   system = {
+    stateVersion = 5;
+
     defaults = {
       SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
 

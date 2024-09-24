@@ -120,7 +120,7 @@
       dotDir = ".config/zsh";
       defaultKeymap = "viins";
       autocd = false;
-      enableAutosuggestions = true;
+      autosuggestion.enable = true;
       enableVteIntegration = true;
       enableCompletion = true;
 
@@ -169,7 +169,13 @@
         format = "$directory$character";
         right_format = "$all";
 
-        git_branch.format = "[$symbol$branch]($style) ";
+        username.disabled = true;
+        hostname.disabled = true;
+
+        git_branch = {
+          symbol = "⎇  ";
+          format = "[$symbol$branch]($style) ";
+        };
 
         kubernetes = {
           disabled = false;
@@ -179,7 +185,7 @@
         gcloud = {
           disabled = false;
           style = "blue";
-          symbol = "☁️ ";
+          symbol = "☁ ";
           format = "[$symbol $project]($style) ";
         };
       };
