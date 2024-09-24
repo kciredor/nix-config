@@ -79,6 +79,13 @@
       hugo
       flutter
       nodePackages.firebase-tools
+
+      # XXX: File issue on Github: on MacOS mistakenly looks for core_ghidra.dylib in /nix/store/xxx-rz-ghidra-0.7.0/lib/plugins/../../.
+      (rizin.withPlugins (ps: with ps; [
+        jsdec
+        rz-ghidra
+        sigdb
+      ]))
     ];
 
     # Shared by all shells.
@@ -298,4 +305,15 @@
       goPath = ".go";
     };
   };
+
+  home.file.".rizinrc".text = ''
+    # Looks.
+    e scr.color=3
+    e scr.utf8=true
+    e scr.utf8.curvy=true
+    eco nord
+
+    # Usage.
+    e cmd.repeat=true
+  '';
 }
