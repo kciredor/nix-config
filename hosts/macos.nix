@@ -132,6 +132,7 @@
       "backblaze"
       "1password"
       "google-chrome"
+      "google-drive"
       "cloudflare-warp"
       "hammerspoon"
       "ferdium"
