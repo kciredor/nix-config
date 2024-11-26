@@ -100,7 +100,7 @@
       vi      = "nvim";
       vim     = "nvim";
       vimdiff = "nvim -d";
-      cat     = "bat";
+      cat     = "bat --theme 'Solarized (light)'";
       diff    = "difft";
 
       ".."    = "cd ../";
