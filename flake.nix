@@ -40,11 +40,11 @@
           ./hosts/kciredor-rs-mbp14.nix
         ];
       };
-      "kciredor@ubuntu" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.aarch64-linux;
+      "kciredor@starbook" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = { inherit inputs outputs; };
         modules = [
-          ./hosts/kciredor-ubuntu.nix
+          ./hosts/kciredor-starbook.nix
         ];
       };
       # Bootstrap with env vars: NIX_FIRST_BUILD_UID=2000, NIX_BUILD_GROUP_ID=2000.

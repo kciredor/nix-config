@@ -13,6 +13,8 @@
   home.activation = {
     destop = lib.hm.dag.entryAfter ["writeBoundary"] ''
       $DRY_RUN_CMD /bin/bash -c 'if [[ ! -e /usr/share/xsessions/home-manager.desktop ]]; then echo -e "[Desktop Entry]\nName=Xsession\nExec=/etc/X11/Xsession\nX-GDM-SessionRegisters=true" | /usr/bin/sudo /bin/tee /usr/share/xsessions/home-manager.desktop >/dev/null; fi'
+
+      $DRY_RUN_CMD /bin/bash -c '/usr/bin/sudo /bin/sed -i "s/XKBOPTIONS=\"\"/XKBOPTIONS=\"caps:swapescape\"/" /etc/default/keyboard'
     '';
   };
 
@@ -101,7 +103,7 @@
     enable = true;
 
     settings = {
-      font.size = 10;
+      font.size = 12;
 
       window = {
         opacity = 0.9;
