@@ -38,4 +38,9 @@
     userName = "Roderick Schaefer";
     userEmail = "roderick@kciredor.com";
   };
+
+  # Required by Chrome OS VM.
+  programs.zsh.initExtra = ''
+    export PATH="$HOME/src/depot_tools:$PATH"
+  '';
 }

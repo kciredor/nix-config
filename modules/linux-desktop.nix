@@ -67,24 +67,6 @@
             format = "$1m.eng(w:3)";
           }
           {
-            block = "net";
-            click = [
-              {
-                button = "left";
-                cmd = "$TERMINAL -e nmtui";
-              }
-            ];
-          }
-          {
-            block = "sound";
-            click = [
-              {
-                button = "left";
-                cmd = "pavucontrol";
-              }
-            ];
-          }
-          {
             block = "battery";
           }
           {
@@ -107,6 +89,8 @@
 
       window = {
         opacity = 0.9;
+        startup_mode = "Maximized";
+        decorations = "None";
       };
 
       env = {
@@ -115,4 +99,7 @@
       };
     };
   };
+
+  # Nix and GL don't play well together. Prioritize OS package manager install of Alacritty over Nixpkgs.
+  programs.zsh.initExtra = "alias alacritty='/usr/bin/alacritty || alacritty'";
 }
