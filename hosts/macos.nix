@@ -31,7 +31,7 @@
   };
 
   fonts.packages = with pkgs; [
-    (nerdfonts.override { fonts = [ "Hack" ]; })  # Required by Starship, Neovim.
+    nerd-fonts.hack  # Required by Starship, Neovim.
   ];
 
   system = {

@@ -70,8 +70,6 @@
           auto-format = true;
           formatter = { command = "goimports"; };
         }
-
-        # Dart is automatically picked up when installed.
       ];
     };
   };
