@@ -24,7 +24,7 @@
         option_as_alt = "OnlyLeft";
       };
 
-      shell = {
+      terminal.shell = {
         program = "${pkgs.tmux}/bin/tmux";
         args = [
           "new"

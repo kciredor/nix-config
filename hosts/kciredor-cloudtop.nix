@@ -30,5 +30,5 @@
 
   systemd.user.startServices = lib.mkForce "suggest";
   programs.tmux.shell = "${pkgs.zsh}/bin/zsh";
-  programs.bash.initExtra = "tmux attach -t kciredor || tmux new -s kciredor";
+  programs.bash.initExtra = "export SHELL=${pkgs.zsh}/bin/zsh; tmux attach -t kciredor || tmux new -s kciredor";
 }

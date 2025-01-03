@@ -71,6 +71,7 @@
       (python3.withPackages(ps: with ps; [
         pip  # Required by Binary Ninja settings.json NixOS+MacOS Python path compatibility.
         distutils  # Required by ChromeOS VM.
+        jupyterlab
       ]))
       gotools
       delve
@@ -78,8 +79,6 @@
       ruff
       nodejs
       hugo
-      flutter
-      nodePackages.firebase-tools
 
       # XXX: File issue on Github: on MacOS mistakenly looks for core_ghidra.dylib in /nix/store/xxx-rz-ghidra-0.7.0/lib/plugins/../../.
       (rizin.withPlugins (ps: with ps; [
@@ -151,9 +150,6 @@
         umask 027
         export PATH="$HOME/bin:$HOME/.nix-profile/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
 
-        # Add specific paths, usually dev tooling related.
-        export PATH="$HOME/.pub-cache/bin:$PATH"
-
         # Required by tmux config to set 'pane_path' variable with current path without dereferencing symlinks.
         function _send_cwd_for_tmux {
           [[ ! -v TMUX ]] && return
@@ -211,6 +207,8 @@
       terminal = "screen-256color";
 
       extraConfig = ''
+        set-option -g default-command $SHELL  # XXX: Latest tmux defaults to sh instead of my shell.
+
         setw -g monitor-activity on
         set  -g visual-activity on
         set  -g status-interval 1

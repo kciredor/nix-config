@@ -4,7 +4,7 @@
   fonts.fontconfig.enable = true;
 
   home.packages = with pkgs; [
-    (nerdfonts.override { fonts = [ "FiraMono" ]; })  # Includes powerline and fontawesome. Required by Starship, Neovim, i3status-rust.
+    nerd-fonts.fira-mono  # Includes powerline and fontawesome. Required by Starship, Neovim, i3status-rust.
 
     gdb
   ];
