@@ -142,6 +142,7 @@
 
       "docker"
       "vmware-fusion"
+      "visual-studio-code"
 
       "ghidra"
       "temurin"  # Required by Ghidra.

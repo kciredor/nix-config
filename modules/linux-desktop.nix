@@ -8,6 +8,9 @@
     xsel  # Required by tmux-yank.
     feh
     scrot
+
+    google-chrome
+    vscode
   ];
 
   home.activation = {
