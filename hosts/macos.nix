@@ -7,7 +7,8 @@
   pkgs,
   ...
 }: {
-  services.nix-daemon.enable = true;
+  ids.gids.nixbld = 30000;
+
   nix.extraOptions = ''
     experimental-features = nix-command flakes
   '';
