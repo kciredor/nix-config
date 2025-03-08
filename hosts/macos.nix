@@ -154,6 +154,7 @@
     # Mac AppStore apps will not be automatically uninstalled when removed from the list.
     masApps = {
       Logic-Pro = 634148309;
+      Tailscale = 1475387142;
 
       # Safari extensions.
       Wipr = 1320666476;
