@@ -138,6 +138,8 @@
       "hammerspoon"
       "ferdium"
       "notion"
+      "obsidian"
+      "signal"
       "spotify"
 
       "docker"
@@ -149,6 +151,7 @@
       "tradingview"
 
       "logitech-g-hub"
+      "native-access"
     ];
 
     # Mac AppStore apps will not be automatically uninstalled when removed from the list.
