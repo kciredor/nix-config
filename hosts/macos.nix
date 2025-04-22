@@ -151,6 +151,7 @@
       "tradingview"
 
       "logitech-g-hub"
+      "ableton-live-suite"
       "native-access"
     ];
 
