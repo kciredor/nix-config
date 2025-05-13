@@ -31,7 +31,7 @@
 
   programs.zsh.history.path = lib.mkForce "$HOME/.HOME/dotfiles/zsh_history";
 
-  programs.zsh.initExtra = ''
+  programs.zsh.initContent = ''
     export SSH_AUTH_SOCK=~/.ssh/agent.sock
     ssh-add -l >/dev/null 2>&1 || (ssh-agent -a "$SSH_AUTH_SOCK" >/dev/null; ssh-add ~/.ssh/id_ed25519 >/dev/null 2>&1)
   '';

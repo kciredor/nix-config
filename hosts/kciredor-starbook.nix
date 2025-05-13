@@ -40,7 +40,7 @@
   };
 
   # Required by Chrome OS VM.
-  programs.zsh.initExtra = ''
+  programs.zsh.initContent = ''
     export PATH="$HOME/src/depot_tools:$PATH"
   '';
 }

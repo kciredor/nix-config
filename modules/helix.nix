@@ -10,7 +10,7 @@
       nodePackages.bash-language-server
 
       pyright
-      ruff-lsp
+      ruff
       gopls
       rust-analyzer
       clang
@@ -54,7 +54,7 @@
 
     languages = {
       language-server = {
-        ruff.command = "ruff-lsp";
+        ruff.command = "ruff server";
         rust-analyzer.config.check.command = "clippy";
       };
 

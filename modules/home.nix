@@ -143,7 +143,7 @@
         share = true;
       };
 
-      initExtra = ''
+      initContent = ''
         zstyle ':completion:*' matcher-list 'r:|=*' 'l:|=* r:|=*'
         zstyle ':completion:*' menu select
 

@@ -7,7 +7,7 @@
     clip = "pbcopy";
   };
 
-  programs.zsh.initExtra = ''
+  programs.zsh.initContent = ''
     export PATH="$PATH:/opt/homebrew/bin"
   '';
 

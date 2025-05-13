@@ -104,5 +104,5 @@
   };
 
   # Nix and GL don't play well together. Prioritize OS package manager install of Alacritty over Nixpkgs.
-  programs.zsh.initExtra = "alias alacritty='/usr/bin/alacritty || alacritty'";
+  programs.zsh.initContent = "alias alacritty='/usr/bin/alacritty || alacritty'";
 }
