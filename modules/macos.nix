@@ -11,10 +11,6 @@
     export PATH="$PATH:/opt/homebrew/bin"
   '';
 
-  programs.ghostty = {
-    enable = true;
-  };
-
   # TODO: Replace with Ghostty, see: https://github.com/NixOS/nixpkgs/issues/388984.
   programs.alacritty = {
     enable = true;
