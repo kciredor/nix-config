@@ -137,7 +137,6 @@
       "cloudflare-warp"
       "hammerspoon"
       "ferdium"
-      "notion"
       "obsidian"
       "signal"
       "spotify"
