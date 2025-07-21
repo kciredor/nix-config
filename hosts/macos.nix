@@ -14,7 +14,7 @@
   '';
   nixpkgs.config.allowUnfree = true;
 
-  system.activationScripts.postUserActivation.text = ''
+  system.activationScripts.postActivation.text = ''
       $DRY_RUN_CMD grep -q 'pam_tid.so' /etc/pam.d/sudo || /usr/bin/sudo ${pkgs.gnused}/bin/sed -i '2i\
       auth       sufficient     pam_tid.so
       ' /etc/pam.d/sudo
@@ -37,15 +37,10 @@
 
   system = {
     stateVersion = 5;
+    primaryUser = "kciredor";  # XXX: Username should not end up in global config, but currently nix-darwin is working towards multi user deployments.
 
     defaults = {
       SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
-
-      alf = {
-        globalstate = 1;
-        allowsignedenabled = 0;
-        allowdownloadsignedenabled = 0;
-      };
 
       loginwindow.GuestEnabled = false;
 
@@ -103,6 +98,13 @@
     };
   };
 
+  networking.applicationFirewall = {
+    enable = true;
+    blockAllIncoming = true;
+    allowSigned = false;
+    allowSignedApp = false;
+  };
+
   homebrew = {
     enable = true;
 
@@ -120,10 +122,6 @@
       no_quarantine = true;
     };
 
-    taps = [
-      "homebrew/cask"
-    ];
-
     brews = [
       "pam-reattach"  # Required by sudo via TouchID.
       "pinentry-mac"
@@ -136,12 +134,11 @@
       "google-drive"
       "cloudflare-warp"
       "hammerspoon"
-      "ferdium"
       "obsidian"
       "signal"
       "spotify"
 
-      "docker"
+      "docker-desktop"
       "vmware-fusion"
       "visual-studio-code"
       "zed"
