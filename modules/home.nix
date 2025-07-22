@@ -73,6 +73,7 @@
         distutils  # Required by ChromeOS VM.
         jupyterlab
       ]))
+      uv
       gotools
       delve
       rustup
