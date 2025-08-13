@@ -80,6 +80,7 @@
       ruff
       nodejs
       hugo
+      gemini-cli
 
       # XXX: File issue on Github: on MacOS mistakenly looks for core_ghidra.dylib in /nix/store/xxx-rz-ghidra-0.7.0/lib/plugins/../../.
       (rizin.withPlugins (ps: with ps; [
@@ -125,7 +126,7 @@
     zsh = {
       enable = true;
 
-      dotDir = ".config/zsh";
+      dotDir = "${config.xdg.configHome}/zsh";
       defaultKeymap = "viins";
       autocd = false;
       autosuggestion.enable = true;
