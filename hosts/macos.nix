@@ -150,6 +150,8 @@
       "logitech-g-hub"
       "ableton-live-suite"
       "native-access"
+
+      "firefox"  # Temp.
     ];
 
     # Mac AppStore apps will not be automatically uninstalled when removed from the list.
