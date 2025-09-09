@@ -11,6 +11,7 @@
 
     google-chrome
     vscode
+    ghidra-bin
   ];
 
   home.activation = {
