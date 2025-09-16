@@ -256,8 +256,13 @@
 
     ssh = {
       enable = true;
-      forwardAgent = false;
-      serverAliveInterval = 120;
+      enableDefaultConfig = false;
+      matchBlocks = {
+        "*" = {
+          forwardAgent = false;
+          serverAliveInterval = 120;
+        };
+      };
     };
 
     git = {
@@ -303,7 +308,11 @@
 
     go = {
       enable = true;
-      goPath = ".go";
+      env = {
+        GOPATH = [
+          "${config.home.homeDirectory}/.go"
+        ];
+      };
     };
   };
 
