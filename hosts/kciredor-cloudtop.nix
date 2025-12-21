@@ -1,12 +1,5 @@
 # Cloudtop VM with home-manager for user kciredor.
-{
-  inputs,
-  outputs,
-  lib,
-  config,
-  pkgs,
-  ...
-}: {
+{ lib, pkgs, ... }: {
   imports = [
     ../modules/home.nix
     ../modules/linux.nix
@@ -24,8 +17,12 @@
   };
 
   programs.git = {
-    userName = "Roderick Schaefer";
-    userEmail = "kciredor@google.com";
+    settings = {
+      user = {
+        name = "Roderick Schaefer";
+        email = "kciredor@google.com";
+      };
+    };
   };
 
   systemd.user.startServices = lib.mkForce "suggest";

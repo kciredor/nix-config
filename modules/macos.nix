@@ -1,4 +1,8 @@
-{ pkgs, lib, config, ... }: {
+{ pkgs, config, ... }: {
+  imports = [
+    ./zed.nix
+  ];
+
   home.packages = with pkgs; [
     m-cli
   ];
@@ -14,6 +18,8 @@
   # TODO: Replace with Ghostty, see: https://github.com/NixOS/nixpkgs/issues/388984.
   programs.alacritty = {
     enable = true;
+
+    package = null;  # Installed by Homebrew in modules/macos.nix making 'full disk access' permissions stick.
 
     settings = {
       font.size = 12;

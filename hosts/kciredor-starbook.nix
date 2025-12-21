@@ -10,13 +10,6 @@
 # - https://softwareupdate.vmware.com/cds/vmw-desktop/ws/
 
 {
-  inputs,
-  outputs,
-  lib,
-  config,
-  pkgs,
-  ...
-}: {
   imports = [
     ../modules/home.nix
     ../modules/linux.nix
@@ -35,8 +28,12 @@
   };
 
   programs.git = {
-    userName = "Roderick Schaefer";
-    userEmail = "roderick@kciredor.com";
+    settings = {
+      user = {
+        name = "Roderick Schaefer";
+        email = "roderick@kciredor.com";
+      };
+    };
   };
 
   # Required by Chrome OS VM.

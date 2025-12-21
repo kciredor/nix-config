@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: {
+{ pkgs, ... }: {
   programs.helix = {
     enable = true;
     defaultEditor = true;
@@ -16,7 +13,7 @@
       clang
 
       terraform-ls
-      nodePackages.dockerfile-language-server-nodejs
+      dockerfile-language-server
     ];
 
     settings = {

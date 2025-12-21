@@ -68,16 +68,16 @@
       terraform
       ansible
       sops
+      statix  # Required by LazyVim Nix support.
       (python3.withPackages(ps: with ps; [
-        pip  # Required by Binary Ninja settings.json NixOS+MacOS Python path compatibility.
-        distutils  # Required by ChromeOS VM.
+        pip
         jupyterlab
       ]))
       uv
+      ruff
       gotools
       delve
       rustup
-      ruff
       nodejs
       hugo
       gemini-cli
@@ -270,11 +270,11 @@
 
       ignores = [ "*~" ];
 
-      aliases = {
-        cleanup = "!git branch --merged | grep  -v '\\*\\|main\\|master' | xargs -n 1 git branch -d";
+      settings = {
+        aliases = {
+          cleanup = "!git branch --merged | grep  -v '\\*\\|main\\|master' | xargs -n 1 git branch -d";
+        };
       };
-
-      difftastic.enable = true;
 
       includes = [
         {
@@ -304,6 +304,12 @@
           };
         }
       ];
+    };
+
+    difftastic = {
+      enable = true;
+
+      git.enable = true;
     };
 
     go = {

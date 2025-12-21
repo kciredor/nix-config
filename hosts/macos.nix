@@ -1,12 +1,5 @@
 # MacOS system with nix-darwin, can be complemented with user specific home-manager separately.
-{
-  inputs,
-  outputs,
-  lib,
-  config,
-  pkgs,
-  ...
-}: {
+{ pkgs, ... }: {
   ids.gids.nixbld = 30000;
 
   nix.extraOptions = ''
@@ -37,7 +30,7 @@
 
   system = {
     stateVersion = 5;
-    primaryUser = "kciredor";  # XXX: Username should not end up in global config, but currently nix-darwin is working towards multi user deployments.
+    primaryUser = "kciredor";  # XXX: See https://github.com/nix-darwin/nix-darwin/pull/1341#issuecomment-2666080741.
 
     defaults = {
       SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
@@ -118,10 +111,6 @@
       cleanup = "zap";
     };
 
-    caskArgs = {
-      no_quarantine = true;
-    };
-
     brews = [
       "pam-reattach"  # Required by sudo via TouchID.
       "pinentry-mac"
@@ -130,6 +119,7 @@
     casks = [
       "backblaze"
       "1password"
+      "alacritty"
       "google-chrome"
       "google-drive"
       "cloudflare-warp"
@@ -141,12 +131,9 @@
       "docker-desktop"
       "vmware-fusion"
       "visual-studio-code"
-      "zed"
+      "zed"  # Configured in zed.nix.
 
-      "ghidra"
-      "temurin"  # Required by Ghidra.
       "tradingview"
-
       "logitech-g-hub"
       "ableton-live-suite"
       "native-access"
@@ -162,7 +149,6 @@
       # Safari extensions.
       Wipr = 1320666476;
       Vimium = 1480933944;
-      Pocket = 1477385213;
     };
   };
 }

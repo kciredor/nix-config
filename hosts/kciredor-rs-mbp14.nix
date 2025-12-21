@@ -1,12 +1,5 @@
 # MacOS with home-manager for user kciredor, MacOS system is provisioned separately.
-{
-  inputs,
-  outputs,
-  lib,
-  config,
-  pkgs,
-  ...
-}: {
+{ lib, ... }: {
   imports = [
     ../modules/home.nix
     ../modules/macos.nix
@@ -25,8 +18,12 @@
   };
 
   programs.git = {
-    userName = "Roderick Schaefer";
-    userEmail = "roderick@kciredor.com";
+    settings = {
+      user = {
+        name = "Roderick Schaefer";
+        email = "roderick@kciredor.com";
+      };
+    };
   };
 
   programs.zsh.history.path = lib.mkForce "$HOME/.HOME/dotfiles/zsh_history";

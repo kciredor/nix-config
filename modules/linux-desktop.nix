@@ -1,4 +1,8 @@
 { pkgs, lib, ... }: {
+  imports = [
+    ./zed.nix
+  ];
+
   home.shellAliases = {
     clip = "xsel -b";
   };
@@ -10,8 +14,8 @@
     scrot
 
     google-chrome
+    zed-editor  # Configured in zed.nix.
     vscode
-    ghidra-bin
   ];
 
   home.activation = {
