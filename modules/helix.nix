@@ -47,6 +47,13 @@
           display-messages = true;
         };
       };
+      keys = {
+        normal = {
+          A-h = ":buffer-next";
+          A-l = ":buffer-previous";
+          A-w = ":buffer-close";
+        };
+      };
     };
 
     languages = {
