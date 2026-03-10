@@ -8,7 +8,7 @@
   ];
 
   home.shellAliases = {
-    clip = "pbcopy";
+    clip   = "pbcopy";
   };
 
   programs.zsh.initContent = ''

@@ -58,16 +58,13 @@
       (google-cloud-sdk.withExtraComponents [google-cloud-sdk.components.gke-gcloud-auth-plugin])
       doctl
       kubectl
-      kubectx
+      kubectx  # Includes kubens.
       kubernetes-helm
       kustomize
-      minikube
       kind
       k9s
-      stern
       terraform
       ansible
-      sops
       statix  # Required by LazyVim Nix support.
       (python3.withPackages(ps: with ps; [
         pip

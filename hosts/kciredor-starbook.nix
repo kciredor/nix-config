@@ -4,10 +4,6 @@
 # - apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager
 # - systemctl enable --now libvirtd
 # - usermod -aG libvirt,kvm kciredor
-#
-# Install VMware:
-# - apt install build-essentials
-# - https://softwareupdate.vmware.com/cds/vmw-desktop/ws/
 
 {
   imports = [

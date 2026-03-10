@@ -114,6 +114,7 @@
     brews = [
       "pam-reattach"  # Required by sudo via TouchID.
       "pinentry-mac"
+      "mas"  # Required by this homebrew plugin to ensure it stays installed.
     ];
 
     casks = [
@@ -122,14 +123,13 @@
       "alacritty"
       "google-chrome"
       "google-drive"
-      "cloudflare-warp"
       "hammerspoon"
       "obsidian"
       "signal"
       "spotify"
 
-      "docker-desktop"
-      "vmware-fusion"
+      "orbstack"
+      "virtualbox"
       "visual-studio-code"
       "zed"  # Configured in zed.nix.
 
@@ -144,7 +144,6 @@
     # Mac AppStore apps will not be automatically uninstalled when removed from the list.
     masApps = {
       Logic-Pro = 634148309;
-      Tailscale = 1475387142;
 
       # Safari extensions.
       Wipr = 1320666476;
