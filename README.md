@@ -1,5 +1,5 @@
-kciredor's Nix configuration for MacOS and Linux.
-=================================================
+kciredor's Nix configuration for MacOS and Linux
+================================================
 
 # MacOS
 
@@ -11,4 +11,4 @@ kciredor's Nix configuration for MacOS and Linux.
 
 - Boot from a freshly installed Linux distro of choice.
 - Set username and hostname (pretty hostname is preferred) matching [flake.nix](flake.nix).
-- Clone this repository and run [bootstrap/linux.sh](bootstrap/.sh).
+- Clone this repository and run [bootstrap/linux.sh](bootstrap/linux.sh).

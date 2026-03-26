@@ -4,7 +4,6 @@
 # - apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager
 # - systemctl enable --now libvirtd
 # - usermod -aG libvirt,kvm kciredor
-
 {
   imports = [
     ../modules/home.nix
@@ -31,9 +30,4 @@
       };
     };
   };
-
-  # Required by Chrome OS VM.
-  programs.zsh.initContent = ''
-    export PATH="$HOME/src/depot_tools:$PATH"
-  '';
 }

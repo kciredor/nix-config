@@ -123,20 +123,15 @@
       "alacritty"
       "google-chrome"
       "google-drive"
-      "hammerspoon"
       "obsidian"
-      "signal"
       "spotify"
 
       "orbstack"
       "virtualbox"
-      "visual-studio-code"
       "zed"  # Configured in zed.nix.
 
       "tradingview"
-      "logitech-g-hub"
       "ableton-live-suite"
-      "native-access"
 
       "firefox"  # Temp.
     ];
