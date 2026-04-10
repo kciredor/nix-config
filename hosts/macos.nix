@@ -124,6 +124,7 @@
       "google-chrome"
       "google-drive"
       "obsidian"
+      "calibre"
       "spotify"
 
       "orbstack"
