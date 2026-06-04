@@ -4,7 +4,7 @@
     defaultEditor = true;
 
     extraPackages = with pkgs; [
-      nodePackages.bash-language-server
+      bash-language-server
 
       pyright
       ruff
