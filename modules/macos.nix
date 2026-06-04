@@ -9,6 +9,7 @@
 
   home.shellAliases = {
     clip = "pbcopy";
+    docker = "podman";
   };
 
   programs.zsh.initContent = ''

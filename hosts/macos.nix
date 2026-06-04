@@ -112,10 +112,16 @@
       extraFlags = [ "--force" ];
     };
 
+    taps = [
+      "slp/krunkit"  # Required by krunkit.
+    ];
+
     brews = [
       "pam-reattach"  # Required by sudo via TouchID.
       "pinentry-mac"
       "mas"  # Required by this homebrew plugin to ensure it stays installed.
+      "podman"
+      "krunkit"  # Required by podman.
     ];
 
     casks = [
@@ -128,7 +134,7 @@
       "calibre"
       "spotify"
 
-      "orbstack"
+      "podman-desktop"
       "virtualbox"
       "zed"  # Configured in zed.nix.
 
@@ -141,6 +147,7 @@
     # Mac AppStore apps will not be automatically uninstalled when removed from the list.
     masApps = {
       Logic-Pro = 634148309;
+      DaftCloud = 1320450034;
 
       # Safari extensions.
       Wipr = 1320666476;
