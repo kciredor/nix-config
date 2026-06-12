@@ -77,6 +77,7 @@
       rustup
       nodejs
       hugo
+      dart-sass  # Required by Hugo.
       gemini-cli
 
       # XXX: File issue on Github: on MacOS mistakenly looks for core_ghidra.dylib in /nix/store/xxx-rz-ghidra-0.7.0/lib/plugins/../../.
