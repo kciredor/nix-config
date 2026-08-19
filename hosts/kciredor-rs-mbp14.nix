@@ -26,6 +26,15 @@
     };
   };
 
+  programs.jujutsu = {
+    settings = {
+      user = {
+        name = "Roderick Schaefer";
+        email = "roderick@kciredor.com";
+      };
+    };
+  };
+
   programs.zsh.history.path = lib.mkForce "$HOME/.HOME/dotfiles/zsh_history";
 
   programs.zsh.initContent = ''

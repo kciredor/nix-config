@@ -30,4 +30,13 @@
       };
     };
   };
+
+  programs.jujutsu = {
+    settings = {
+      user = {
+        name = "Roderick Schaefer";
+        email = "roderick@kciredor.com";
+      };
+    };
+  };
 }

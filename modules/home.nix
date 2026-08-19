@@ -304,6 +304,16 @@
       ];
     };
 
+    jujutsu = {
+      enable = true;
+
+      settings = {
+        ui = {
+          merge-editor = "nvimdiff";
+        };
+      };
+    };
+
     difftastic = {
       enable = true;
 
